@@ -15,7 +15,7 @@ export interface AuthResponseDTO {
   readonly expiresIn: string;
 }
 
-// toda resposta de usuário passa por aqui para não vazar o hash da senha
+// toda resposta de usuario passa por aqui para nao vazar o hash da senha
 export function toUserResponseDTO(user: User): UserResponseDTO {
   return {
     id: user.id,
