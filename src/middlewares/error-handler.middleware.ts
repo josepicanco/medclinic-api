@@ -13,7 +13,7 @@ interface ErrorResponseBody {
   timestamp: string;
 }
 
-const UNIQUE_VIOLATION_CODE = '23505'; // código do Postgres para unique violado
+const UNIQUE_VIOLATION_CODE = '23505'; // codigo do Postgres para unique violado
 
 export function errorHandler(
   error: unknown,

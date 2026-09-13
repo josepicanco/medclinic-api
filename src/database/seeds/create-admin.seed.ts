@@ -6,7 +6,7 @@ import { UserRepository } from '../../repositories/user.repository';
 import { PasswordUtil } from '../../utils/password.util';
 import { AppDataSource, initializeDatabase } from '../data-source';
 
-// o cadastro público só cria ATENDENTE, então o primeiro ADMIN sai daqui
+// o cadastro publico so cria ATENDENTE, entao o primeiro ADMIN sai daqui
 async function createAdminSeed(): Promise<void> {
   await initializeDatabase();
 

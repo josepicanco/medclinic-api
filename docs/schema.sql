@@ -12,7 +12,7 @@ BEGIN
 END
 $$;
 
--- Tabela de usuários
+-- Tabela de usuarios
 CREATE TABLE IF NOT EXISTS "users" (
   "id"            uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
   "name"          varchar(120) NOT NULL,

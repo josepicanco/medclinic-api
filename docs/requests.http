@@ -25,7 +25,7 @@ Content-Type: application/json
   "password": "Senha@123"
 }
 
-### Cadastro com dados inválidos
+### Cadastro com dados invalidos
 POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
@@ -69,7 +69,7 @@ Authorization: Bearer {{atendenteToken}}
 ### Meu perfil sem token
 GET {{baseUrl}}/users/me
 
-### Token inválido
+### Token invalido
 GET {{baseUrl}}/users/me
 Authorization: Bearer token.invalido.aqui
 
@@ -81,5 +81,5 @@ Authorization: Bearer {{adminToken}}
 GET {{baseUrl}}/admin/ping
 Authorization: Bearer {{atendenteToken}}
 
-### Rota que não existe
+### Rota que nao existe
 GET {{baseUrl}}/rota-que-nao-existe

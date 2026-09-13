@@ -1,11 +1,11 @@
-# Dependências
+# Dependencias
 node_modules/
 
 # Build
 dist/
 build/
 
-# Variáveis de ambiente
+# Variaveis de ambiente
 .env
 .env.local
 .env.*.local
@@ -21,6 +21,6 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Cobertura / temporários
+# Cobertura / temporarios
 coverage/
 tmp/

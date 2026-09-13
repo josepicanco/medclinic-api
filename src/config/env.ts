@@ -27,7 +27,7 @@ export interface AppEnv {
   };
 }
 
-// se faltar variável obrigatória a API nem sobe
+// se faltar variavel obrigatoria a API nem sobe
 function requiredEnv(key: string): string {
   const value = process.env[key];
 

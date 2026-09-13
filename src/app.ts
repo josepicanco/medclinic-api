@@ -12,7 +12,7 @@ export function createApp(): Application {
 
   app.use(routes);
 
-  // precisam ficar por último
+  // precisam ficar por ultimo
   app.use(notFoundHandler);
   app.use(errorHandler);
 
