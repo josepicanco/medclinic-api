@@ -1,7 +1,7 @@
 {
   "name": "medclinic-api",
   "version": "1.0.0",
-  "description": "MedClinic API - Etapa 1: Autenticação e Autorização (Node.js + TypeScript + Express + TypeORM + PostgreSQL)",
+  "description": "MedClinic API - Etapa 1: Autenticacao e Autorizacao (Node.js + TypeScript + Express + TypeORM + PostgreSQL)",
   "main": "dist/server.js",
   "engines": {
     "node": ">=18.0.0"
