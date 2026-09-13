@@ -28,6 +28,10 @@ export class JwtUtil {
 
       return JwtUtil.parsePayload(decoded);
     } catch (error) {
+      if (error instanceof jwt.TokenExpiredError) {
+        throw new UnauthorizedError('Token expirado. Realize o login novamente.');
+      }
+
       if (error instanceof UnauthorizedError) {
         throw error;
       }
