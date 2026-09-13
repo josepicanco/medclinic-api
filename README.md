@@ -137,6 +137,7 @@ routes -> middlewares -> controllers -> services -> repositories -> entities -> 
 | `src/utils` | Hash de senha, JWT e validações |
 | `src/config` | Leitura das variáveis de ambiente |
 | `src/types` | Tipagem do `req.user` no Express |
+| `src/modules` | Pasta reservada para os módulos da etapa 2 |
 | `docs` | `schema.sql` e `requests.http` com as requisições de teste |
 
 `server.ts` conecta no banco e sobe a porta; `app.ts` monta o Express com as
