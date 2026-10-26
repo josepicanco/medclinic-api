@@ -25,7 +25,7 @@ export function buildContainer(dataSource: DataSource, env: AppEnv): AppContaine
   const userRepository = new UserRepository(dataSource);
 
   const authService = new AuthService(userRepository, passwordUtil, jwtUtil);
-  const userService = new UserService(userRepository);
+  const userService = new UserService(userRepository, passwordUtil);
 
   return {
     authenticate: authenticate(jwtUtil),
