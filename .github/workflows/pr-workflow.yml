@@ -28,5 +28,5 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Testes com cobertura
+      - name: Testes com cobertura (reprova abaixo de 80%)
         run: npm run test:cov
