@@ -1,0 +1,32 @@
+name: Validacao do pull request
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  # O nome do job e o check obrigatorio na protecao da branch main: nao renomear.
+  validate:
+    name: validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instala dependencias
+        run: npm ci
+
+      - name: Checagem de tipos (src e testes)
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      - name: Testes com cobertura
+        run: npm run test:cov
