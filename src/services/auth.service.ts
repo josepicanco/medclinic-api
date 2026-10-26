@@ -1,40 +1,34 @@
-import { env } from '../config/env';
 import { LoginDTO } from '../dtos/login.dto';
-import { AuthResponseDTO, toUserResponseDTO } from '../dtos/user-response.dto';
-import { UnauthorizedError } from '../errors/app-error';
-import { IUserRepository, UserRepository } from '../repositories/user.repository';
-import { JwtUtil } from '../utils/jwt.util';
-import { PasswordUtil } from '../utils/password.util';
+import { AuthResponseDTO } from '../dtos/user-response.dto';
+import { InvalidCredentialsError } from '../errors/app-error';
+import { IUserRepository } from '../repositories/user.repository';
+import { ITokenProvider } from '../utils/jwt.util';
+import { IPasswordHasher } from '../utils/password.util';
+
+// hash fixo para comparar quando o e-mail nao existe: a resposta demora o mesmo
+// tempo nos dois casos e nao entrega se o e-mail esta cadastrado
+const DUMMY_HASH = '$2b$10$AdCyTzkobfE50FdF6z.u1.4.KE8/b7u0N5Efkb5Ihz4PUzLH9Sdqu';
 
 export class AuthService {
   private readonly userRepository: IUserRepository;
+  private readonly passwordHasher: IPasswordHasher;
+  private readonly tokenProvider: ITokenProvider;
 
-  constructor(userRepository: IUserRepository = new UserRepository()) {
+  constructor(userRepository: IUserRepository, passwordHasher: IPasswordHasher, tokenProvider: ITokenProvider) {
     this.userRepository = userRepository;
+    this.passwordHasher = passwordHasher;
+    this.tokenProvider = tokenProvider;
   }
 
   public async login(credentials: LoginDTO): Promise<AuthResponseDTO> {
-    // mesma mensagem para e-mail ou senha errados
-    const invalidCredentials = new UnauthorizedError('E-mail ou senha inválidos.');
-
     const user = await this.userRepository.findByEmail(credentials.email);
+    const passwordMatches = await this.passwordHasher.compare(credentials.password, user?.passwordHash ?? DUMMY_HASH);
 
-    if (!user) {
-      throw invalidCredentials;
+    // mesma resposta para e-mail ou senha errados
+    if (!user || !passwordMatches) {
+      throw new InvalidCredentialsError();
     }
 
-    const passwordMatches = await PasswordUtil.compare(credentials.password, user.passwordHash);
-
-    if (!passwordMatches) {
-      throw invalidCredentials;
-    }
-
-    const token = JwtUtil.sign({ sub: user.id, role: user.role });
-
-    return {
-      user: toUserResponseDTO(user),
-      token,
-      expiresIn: env.jwt.expiresIn,
-    };
+    return { accessToken: this.tokenProvider.sign({ id: user.id, roles: user.roles }) };
   }
 }

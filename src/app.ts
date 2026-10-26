@@ -1,16 +1,20 @@
 import express, { Application } from 'express';
 
+import { AppContainer } from './container';
 import { errorHandler } from './middlewares/error-handler.middleware';
 import { notFoundHandler } from './middlewares/not-found.middleware';
-import { routes } from './routes';
+import { createRoutes } from './routes';
 
-export function createApp(): Application {
+export const API_PREFIX = '/api/v1';
+
+export function createApp(container: AppContainer): Application {
   const app: Application = express();
 
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
+  app.disable('x-powered-by');
+  app.set('trust proxy', 1);
+  app.use(express.json({ limit: '100kb' }));
 
-  app.use(routes);
+  app.use(API_PREFIX, createRoutes(container));
 
   // precisam ficar por ultimo
   app.use(notFoundHandler);

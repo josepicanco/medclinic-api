@@ -1,11 +1,11 @@
-import { Router } from 'express';
+import { RequestHandler, Router } from 'express';
 
 import { UserController } from '../controllers/user.controller';
-import { authenticate } from '../middlewares/authentication.middleware';
 
-const userRoutes = Router();
-const userController = new UserController();
+export function createUserRoutes(userController: UserController, authenticate: RequestHandler): Router {
+  const userRoutes = Router();
 
-userRoutes.get('/me', authenticate, userController.me);
+  userRoutes.get('/me', authenticate, userController.me);
 
-export { userRoutes };
+  return userRoutes;
+}

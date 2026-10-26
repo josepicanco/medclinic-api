@@ -1,26 +1,21 @@
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Request, RequestHandler, Response } from 'express';
 
 import { UserRole } from '../enums/user-role.enum';
 import { ForbiddenError, UnauthorizedError } from '../errors/app-error';
 
-export function authorize(...allowedRoles: UserRole[]) {
+// RN01: basta o usuario ter um dos perfis permitidos
+export function authorize(...allowedRoles: UserRole[]): RequestHandler {
   return (request: Request, _response: Response, next: NextFunction): void => {
-    try {
-      const authenticatedUser = request.user;
+    const authenticatedUser = request.user;
 
-      if (!authenticatedUser) {
-        throw new UnauthorizedError('Não autenticado.');
-      }
-
-      if (!allowedRoles.includes(authenticatedUser.role)) {
-        throw new ForbiddenError(
-          `Acesso restrito aos perfis: ${allowedRoles.join(', ')}. Seu perfil: ${authenticatedUser.role}.`,
-        );
-      }
-
-      next();
-    } catch (error) {
-      next(error);
+    if (!authenticatedUser) {
+      throw new UnauthorizedError('Não autenticado.');
     }
+
+    if (!authenticatedUser.roles.some((role) => allowedRoles.includes(role))) {
+      throw new ForbiddenError(`Acesso restrito aos perfis: ${allowedRoles.join(', ')}.`);
+    }
+
+    next();
   };
 }

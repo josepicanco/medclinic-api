@@ -8,9 +8,9 @@ import { AppDataSource, initializeDatabase } from '../data-source';
 
 // o cadastro publico so cria ATENDENTE, entao o primeiro ADMIN sai daqui
 async function createAdminSeed(): Promise<void> {
-  await initializeDatabase();
+  const dataSource = await initializeDatabase();
 
-  const userRepository = new UserRepository();
+  const userRepository = new UserRepository(dataSource);
   const email = env.seedAdmin.email.toLowerCase();
   const existingAdmin = await userRepository.findByEmail(email);
 
@@ -20,13 +20,13 @@ async function createAdminSeed(): Promise<void> {
     return;
   }
 
-  const passwordHash = await PasswordUtil.hash(env.seedAdmin.password);
+  const passwordHash = await new PasswordUtil(env.bcryptSaltRounds).hash(env.seedAdmin.password);
 
   const admin = await userRepository.create({
     name: env.seedAdmin.name,
     email,
     passwordHash,
-    role: UserRole.ADMIN,
+    roles: [UserRole.ADMIN],
   });
 
   console.log(`[seed] Administrador criado com sucesso: ${admin.email} (id: ${admin.id})`);

@@ -1,31 +1,18 @@
-import { NextFunction, Request, Response } from 'express';
+import { Request, Response } from 'express';
 
-import { UnauthorizedError } from '../errors/app-error';
+import { getAuthenticatedUser } from '../middlewares/authentication.middleware';
 import { UserService } from '../services/user.service';
 
 export class UserController {
   private readonly userService: UserService;
 
-  constructor(userService: UserService = new UserService()) {
+  constructor(userService: UserService) {
     this.userService = userService;
   }
 
-  public me = async (request: Request, response: Response, next: NextFunction): Promise<void> => {
-    try {
-      const authenticatedUser = request.user;
-
-      if (!authenticatedUser) {
-        throw new UnauthorizedError('Não autenticado.');
-      }
-
-      const profile = await this.userService.findProfileById(authenticatedUser.id);
-
-      response.status(200).json({
-        message: 'Usuário autenticado recuperado com sucesso.',
-        data: profile,
-      });
-    } catch (error) {
-      next(error);
-    }
+  // GET /api/v1/users/me
+  public me = async (request: Request, response: Response): Promise<void> => {
+    const profile = await this.userService.findProfileById(getAuthenticatedUser(request).id);
+    response.status(200).json(profile);
   };
 }
