@@ -2,17 +2,14 @@ import { User } from '../entities/user.entity';
 import { UserRole } from '../enums/user-role.enum';
 
 export interface UserResponseDTO {
-  readonly id: string;
+  readonly id: number;
   readonly name: string;
   readonly email: string;
-  readonly role: UserRole;
-  readonly createdAt: Date;
+  readonly roles: UserRole[];
 }
 
 export interface AuthResponseDTO {
-  readonly user: UserResponseDTO;
-  readonly token: string;
-  readonly expiresIn: string;
+  readonly accessToken: string;
 }
 
 // toda resposta de usuario passa por aqui para nao vazar o hash da senha
@@ -21,7 +18,6 @@ export function toUserResponseDTO(user: User): UserResponseDTO {
     id: user.id,
     name: user.name,
     email: user.email,
-    role: user.role,
-    createdAt: user.createdAt,
+    roles: user.roles,
   };
 }
