@@ -5,6 +5,7 @@ import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConne
 import { DatabaseConfig, env } from '../config/env';
 import { Appointment } from '../entities/appointment.entity';
 import { Doctor } from '../entities/doctor.entity';
+import { MedicalRecord } from '../entities/medical-record.entity';
 import { Patient } from '../entities/patient.entity';
 import { User } from '../entities/user.entity';
 import { WorkShift } from '../entities/work-shift.entity';
@@ -14,6 +15,7 @@ import { CreatePatientsTable1792627013744 } from './migrations/1792627013744-Cre
 import { CreateDoctorsTable1792713418209 } from './migrations/1792713418209-CreateDoctorsTable';
 import { CreateWorkShiftsTable1792799823512 } from './migrations/1792799823512-CreateWorkShiftsTable';
 import { CreateAppointmentsTable1792886227905 } from './migrations/1792886227905-CreateAppointmentsTable';
+import { CreateMedicalRecordsTable1792972634417 } from './migrations/1792972634417-CreateMedicalRecordsTable';
 
 // banco gerenciado (Neon/Render) passa a URL inteira; local usa as variaveis separadas
 function connectionOptions(database: DatabaseConfig): Partial<PostgresConnectionOptions> {
@@ -36,7 +38,7 @@ export const AppDataSource = new DataSource({
   ssl: env.database.ssl ? { rejectUnauthorized: env.database.sslRejectUnauthorized } : false,
   synchronize: false, // tabelas criadas pelas migrations
   logging: env.database.logging,
-  entities: [User, Patient, Doctor, WorkShift, Appointment],
+  entities: [User, Patient, Doctor, WorkShift, Appointment, MedicalRecord],
   migrations: [
     CreateUsersTable1788619277482,
     AlterUsersToRolesArray1792540612031,
@@ -44,6 +46,7 @@ export const AppDataSource = new DataSource({
     CreateDoctorsTable1792713418209,
     CreateWorkShiftsTable1792799823512,
     CreateAppointmentsTable1792886227905,
+    CreateMedicalRecordsTable1792972634417,
   ],
   migrationsTableName: 'migrations_history',
 });
