@@ -5,6 +5,7 @@ import { createAppointmentRoutes } from './appointment.routes';
 import { createAuthRoutes } from './auth.routes';
 import { createCalendarRoutes } from './calendar.routes';
 import { createDoctorRoutes } from './doctor.routes';
+import { createMedicalRecordRoutes } from './medical-record.routes';
 import { createPatientRoutes } from './patient.routes';
 import { createUserRoutes } from './user.routes';
 import { createWorkScheduleRoutes } from './work-schedule.routes';
@@ -20,6 +21,7 @@ export function createRoutes(container: AppContainer): Router {
   routes.use('/auth', createAuthRoutes(container.authController));
   routes.use('/users', createUserRoutes(container.userController, authenticate));
   routes.use('/patients', createPatientRoutes(container.patientController, authenticate));
+  routes.use('/patients', createMedicalRecordRoutes(container.medicalRecordController, authenticate));
   routes.use('/doctors', createDoctorRoutes(container.doctorController, authenticate));
   routes.use('/doctors', createWorkScheduleRoutes(container.workScheduleController, authenticate));
   routes.use('/doctors', createCalendarRoutes(container.calendarController, authenticate));
