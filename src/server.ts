@@ -13,7 +13,21 @@ async function bootstrap(): Promise<void> {
     await initializeDatabase();
     console.log('[database] Conexão com o PostgreSQL estabelecida.');
 
+    // RP06: as migrations rodam na inicializacao
+    if (env.runMigrations) {
+      const executed = await AppDataSource.runMigrations({ transaction: 'each' });
+
+      if (executed.length > 0) {
+        console.log(`[database] Migrations executadas: ${executed.map((migration) => migration.name).join(', ')}`);
+      }
+    }
+
     const container = buildContainer(AppDataSource, env);
+
+    // RP07: primeiro admin criado a partir das variaveis de ambiente
+    if ((await container.adminSeedService.ensureAdmin(env.seedAdmin)) === 'created') {
+      console.log(`[seed] Administrador criado: ${env.seedAdmin.email}`);
+    }
 
     const server = createApp(container).listen(env.port, HOST, () => {
       console.log(`[server] MedClinic API rodando em http://${HOST}:${env.port} (${env.nodeEnv})`);

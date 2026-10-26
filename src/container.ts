@@ -6,6 +6,7 @@ import { AuthController } from './controllers/auth.controller';
 import { UserController } from './controllers/user.controller';
 import { authenticate } from './middlewares/authentication.middleware';
 import { UserRepository } from './repositories/user.repository';
+import { AdminSeedService } from './services/admin-seed.service';
 import { AuthService } from './services/auth.service';
 import { UserService } from './services/user.service';
 import { JwtUtil } from './utils/jwt.util';
@@ -13,6 +14,7 @@ import { PasswordUtil } from './utils/password.util';
 
 export interface AppContainer {
   readonly authenticate: RequestHandler;
+  readonly adminSeedService: AdminSeedService;
   readonly authController: AuthController;
   readonly userController: UserController;
 }
@@ -29,6 +31,7 @@ export function buildContainer(dataSource: DataSource, env: AppEnv): AppContaine
 
   return {
     authenticate: authenticate(jwtUtil),
+    adminSeedService: new AdminSeedService(userRepository, passwordUtil),
     authController: new AuthController(authService),
     userController: new UserController(userService),
   };
