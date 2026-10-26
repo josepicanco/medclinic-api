@@ -47,10 +47,12 @@ class BookingTransaction implements IBookingTransaction {
     this.manager = manager;
   }
 
+  // trava a linha do medico e nao as de consulta: numa agenda vazia nao haveria o que travar
   public async lockDoctor(doctorId: number): Promise<boolean> {
     const doctor = await this.manager
       .getRepository(Doctor)
       .createQueryBuilder('doctor')
+      .setLock('pessimistic_write')
       .where('doctor.id = :doctorId', { doctorId })
       .getOne();
 
@@ -61,6 +63,7 @@ class BookingTransaction implements IBookingTransaction {
     const patient = await this.manager
       .getRepository(Patient)
       .createQueryBuilder('patient')
+      .setLock('pessimistic_write')
       .where('patient.id = :patientId', { patientId })
       .andWhere('patient.deletedAt IS NULL')
       .getOne();
