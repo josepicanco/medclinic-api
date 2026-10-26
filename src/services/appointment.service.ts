@@ -6,10 +6,12 @@ import {
 } from '../dtos/appointment.dto';
 import { PageResponseDTO, toPageResponseDTO } from '../dtos/common.dto';
 import { Appointment } from '../entities/appointment.entity';
+import { AppointmentStatus } from '../enums/appointment-status.enum';
 import { UserRole, hasRole } from '../enums/user-role.enum';
 import { BadRequestError, ConflictError, ForbiddenError, NotFoundError, UnprocessableError } from '../errors/app-error';
 import { AppointmentFilter, IAppointmentRepository } from '../repositories/appointment.repository';
 import { IDoctorRepository } from '../repositories/doctor.repository';
+import { canPerformTransition, transitionAuthorities } from '../rules/appointment-status.rules';
 import { endOfClinicDayExclusive, startOfClinicDay } from '../rules/clinic-time.rules';
 import { addMinutes } from '../rules/period.rules';
 import { findShiftForSlot } from '../rules/schedule.rules';
@@ -107,6 +109,33 @@ export class AppointmentService {
     }
 
     return toAppointmentResponseDTO(appointment);
+  }
+
+  // RF08: primeiro o ciclo de vida (RN11, 422), depois a autoridade do perfil (RN12, 403).
+  // cancelada deixa de contar como ativa, entao o horario e liberado (RN13)
+  public async changeStatus(
+    user: AuthenticatedUser,
+    id: number,
+    status: AppointmentStatus,
+  ): Promise<AppointmentResponseDTO> {
+    const appointment = await this.findEntityById(id);
+    const authorities = transitionAuthorities(appointment.status, status);
+
+    if (!authorities) {
+      throw new UnprocessableError(
+        'TRANSICAO_INVALIDA',
+        `Não é permitido mudar o status de ${appointment.status} para ${status}.`,
+      );
+    }
+
+    const isAppointmentDoctor =
+      hasRole(user.roles, UserRole.DOCTOR) && (await this.findDoctorIdOf(user)) === appointment.doctorId;
+
+    if (!canPerformTransition(authorities, user.roles, isAppointmentDoctor)) {
+      throw new ForbiddenError('Seu perfil não pode executar esta mudança de status.');
+    }
+
+    return toAppointmentResponseDTO(await this.appointmentRepository.updateStatus(appointment, status));
   }
 
   private async findEntityById(id: number): Promise<Appointment> {

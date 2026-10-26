@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 
-import { createAppointmentSchema, listAppointmentsQuerySchema } from '../dtos/appointment.dto';
+import { changeStatusSchema, createAppointmentSchema, listAppointmentsQuerySchema } from '../dtos/appointment.dto';
 import { idParamSchema } from '../dtos/common.dto';
 import { getAuthenticatedUser } from '../middlewares/authentication.middleware';
 import { getValidated } from '../middlewares/validation.middleware';
@@ -26,5 +26,11 @@ export class AppointmentController {
   public findById = async (request: Request, response: Response): Promise<void> => {
     const { id } = getValidated(response, 'params', idParamSchema);
     response.status(200).json(await this.appointmentService.findById(getAuthenticatedUser(request), id));
+  };
+
+  public changeStatus = async (request: Request, response: Response): Promise<void> => {
+    const { id } = getValidated(response, 'params', idParamSchema);
+    const { status } = getValidated(response, 'body', changeStatusSchema);
+    response.status(200).json(await this.appointmentService.changeStatus(getAuthenticatedUser(request), id, status));
   };
 }

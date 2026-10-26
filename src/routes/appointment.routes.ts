@@ -1,7 +1,7 @@
 import { RequestHandler, Router } from 'express';
 
 import { AppointmentController } from '../controllers/appointment.controller';
-import { createAppointmentSchema, listAppointmentsQuerySchema } from '../dtos/appointment.dto';
+import { changeStatusSchema, createAppointmentSchema, listAppointmentsQuerySchema } from '../dtos/appointment.dto';
 import { idParamSchema } from '../dtos/common.dto';
 import { UserRole } from '../enums/user-role.enum';
 import { authorize } from '../middlewares/authorization.middleware';
@@ -28,6 +28,13 @@ export function createAppointmentRoutes(
     appointmentController.list,
   );
   appointmentRoutes.get('/:id', authenticate, validate({ params: idParamSchema }), appointmentController.findById);
+  // a autoridade depende da transicao (RN12), entao quem decide e o service
+  appointmentRoutes.patch(
+    '/:id/status',
+    authenticate,
+    validate({ params: idParamSchema, body: changeStatusSchema }),
+    appointmentController.changeStatus,
+  );
 
   return appointmentRoutes;
 }
