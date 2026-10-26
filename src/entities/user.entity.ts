@@ -4,8 +4,8 @@ import { UserRole } from '../enums/user-role.enum';
 
 @Entity('users')
 export class User {
-  @PrimaryGeneratedColumn('uuid')
-  public id: string;
+  @PrimaryGeneratedColumn()
+  public id: number;
 
   @Column({ type: 'varchar', length: 120 })
   public name: string;
@@ -13,11 +13,12 @@ export class User {
   @Column({ type: 'varchar', length: 180, unique: true })
   public email: string;
 
-  @Column({ name: 'password_hash', type: 'varchar', length: 255, select: true })
+  @Column({ name: 'password_hash', type: 'varchar', length: 255 })
   public passwordHash: string;
 
-  @Column({ type: 'enum', enum: UserRole, default: UserRole.ATENDENTE })
-  public role: UserRole;
+  // um usuario pode ter mais de um perfil
+  @Column({ type: 'text', array: true })
+  public roles: UserRole[];
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp with time zone' })
   public createdAt: Date;
