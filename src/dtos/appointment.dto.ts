@@ -34,8 +34,13 @@ export const listAppointmentsQuerySchema = paginationQuerySchema.extend({
   to: dateSchema.optional(),
 });
 
+export const changeStatusSchema = z.object({
+  status: z.nativeEnum(AppointmentStatus),
+});
+
 export type CreateAppointmentDTO = z.infer<typeof createAppointmentSchema>;
 export type ListAppointmentsQueryDTO = z.infer<typeof listAppointmentsQuerySchema>;
+export type ChangeStatusDTO = z.infer<typeof changeStatusSchema>;
 
 export interface AppointmentResponseDTO {
   readonly id: number;

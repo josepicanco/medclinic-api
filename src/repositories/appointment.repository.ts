@@ -37,6 +37,7 @@ export interface IAppointmentRepository {
   runBookingTransaction<T>(work: (transaction: IBookingTransaction) => Promise<T>): Promise<T>;
   findById(id: number): Promise<Appointment | null>;
   list(filter: AppointmentFilter): Promise<Page<Appointment>>;
+  updateStatus(appointment: Appointment, status: AppointmentStatus): Promise<Appointment>;
 }
 
 // tudo aqui dentro usa o EntityManager da transacao: o repositorio injetado rodaria fora dela
@@ -149,5 +150,10 @@ export class AppointmentRepository implements IAppointmentRepository {
       .getManyAndCount();
 
     return { items, total, page: filter.page, pageSize: filter.pageSize };
+  }
+
+  public async updateStatus(appointment: Appointment, status: AppointmentStatus): Promise<Appointment> {
+    appointment.status = status;
+    return this.repository.save(appointment);
   }
 }

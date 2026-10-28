@@ -78,6 +78,11 @@ export class InMemoryAppointmentRepository implements IAppointmentRepository {
     return paginate(matches, filter);
   }
 
+  public async updateStatus(appointment: Appointment, status: AppointmentStatus): Promise<Appointment> {
+    appointment.status = status;
+    return appointment;
+  }
+
   private hasActiveOverlap(owner: (appointment: Appointment) => boolean, period: Period): boolean {
     return this.items.some(
       (appointment) =>
