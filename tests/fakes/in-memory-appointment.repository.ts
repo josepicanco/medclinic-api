@@ -92,6 +92,19 @@ export class InMemoryAppointmentRepository implements IAppointmentRepository {
     return appointment;
   }
 
+  public async existsWithStatus(
+    doctorId: number,
+    patientId: number,
+    statuses: readonly AppointmentStatus[],
+  ): Promise<boolean> {
+    return this.items.some(
+      (appointment) =>
+        appointment.doctorId === doctorId &&
+        appointment.patientId === patientId &&
+        statuses.includes(appointment.status),
+    );
+  }
+
   private hasActiveOverlap(owner: (appointment: Appointment) => boolean, period: Period): boolean {
     return this.items.some(
       (appointment) =>

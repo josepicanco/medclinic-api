@@ -6,12 +6,14 @@ import { AppointmentController } from './controllers/appointment.controller';
 import { AuthController } from './controllers/auth.controller';
 import { CalendarController } from './controllers/calendar.controller';
 import { DoctorController } from './controllers/doctor.controller';
+import { MedicalRecordController } from './controllers/medical-record.controller';
 import { PatientController } from './controllers/patient.controller';
 import { UserController } from './controllers/user.controller';
 import { WorkScheduleController } from './controllers/work-schedule.controller';
 import { authenticate } from './middlewares/authentication.middleware';
 import { AppointmentRepository } from './repositories/appointment.repository';
 import { DoctorRepository } from './repositories/doctor.repository';
+import { MedicalRecordRepository } from './repositories/medical-record.repository';
 import { PatientRepository } from './repositories/patient.repository';
 import { UserRepository } from './repositories/user.repository';
 import { WorkScheduleRepository } from './repositories/work-schedule.repository';
@@ -20,6 +22,7 @@ import { AppointmentService } from './services/appointment.service';
 import { AuthService } from './services/auth.service';
 import { CalendarService } from './services/calendar.service';
 import { DoctorService } from './services/doctor.service';
+import { MedicalRecordService } from './services/medical-record.service';
 import { PatientService } from './services/patient.service';
 import { UserService } from './services/user.service';
 import { WorkScheduleService } from './services/work-schedule.service';
@@ -36,6 +39,7 @@ export interface AppContainer {
   readonly workScheduleController: WorkScheduleController;
   readonly calendarController: CalendarController;
   readonly appointmentController: AppointmentController;
+  readonly medicalRecordController: MedicalRecordController;
 }
 
 // unico lugar que conhece as implementacoes concretas: o resto recebe tudo pelo construtor (RP02)
@@ -48,6 +52,7 @@ export function buildContainer(dataSource: DataSource, env: AppEnv): AppContaine
   const doctorRepository = new DoctorRepository(dataSource);
   const workScheduleRepository = new WorkScheduleRepository(dataSource);
   const appointmentRepository = new AppointmentRepository(dataSource);
+  const medicalRecordRepository = new MedicalRecordRepository(dataSource);
 
   const authService = new AuthService(userRepository, passwordUtil, jwtUtil);
   const userService = new UserService(userRepository, passwordUtil);
@@ -56,6 +61,12 @@ export function buildContainer(dataSource: DataSource, env: AppEnv): AppContaine
   const workScheduleService = new WorkScheduleService(doctorRepository, workScheduleRepository);
   const calendarService = new CalendarService(doctorRepository, workScheduleRepository, appointmentRepository);
   const appointmentService = new AppointmentService(appointmentRepository, doctorRepository);
+  const medicalRecordService = new MedicalRecordService(
+    medicalRecordRepository,
+    patientRepository,
+    doctorRepository,
+    appointmentRepository,
+  );
 
   return {
     authenticate: authenticate(jwtUtil),
@@ -67,5 +78,6 @@ export function buildContainer(dataSource: DataSource, env: AppEnv): AppContaine
     workScheduleController: new WorkScheduleController(workScheduleService),
     calendarController: new CalendarController(calendarService),
     appointmentController: new AppointmentController(appointmentService),
+    medicalRecordController: new MedicalRecordController(medicalRecordService),
   };
 }

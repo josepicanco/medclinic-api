@@ -46,3 +46,6 @@ export function canPerformTransition(
 
   return authorities.includes('owner_doctor') && roles.includes(UserRole.DOCTOR) && isAppointmentDoctor;
 }
+
+// RN14: consulta em andamento ou concluida cria vinculo entre medico e paciente
+export const BOND_STATUSES: readonly AppointmentStatus[] = [AppointmentStatus.IN_PROGRESS, AppointmentStatus.DONE];

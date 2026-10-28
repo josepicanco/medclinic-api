@@ -39,6 +39,7 @@ export interface IAppointmentRepository {
   list(filter: AppointmentFilter): Promise<Page<Appointment>>;
   findActiveByDoctorInPeriod(doctorId: number, period: Period): Promise<Appointment[]>;
   updateStatus(appointment: Appointment, status: AppointmentStatus): Promise<Appointment>;
+  existsWithStatus(doctorId: number, patientId: number, statuses: readonly AppointmentStatus[]): Promise<boolean>;
 }
 
 // tudo aqui dentro usa o EntityManager da transacao: o repositorio injetado rodaria fora dela
@@ -167,5 +168,18 @@ export class AppointmentRepository implements IAppointmentRepository {
   public async updateStatus(appointment: Appointment, status: AppointmentStatus): Promise<Appointment> {
     appointment.status = status;
     return this.repository.save(appointment);
+  }
+
+  public async existsWithStatus(
+    doctorId: number,
+    patientId: number,
+    statuses: readonly AppointmentStatus[],
+  ): Promise<boolean> {
+    return this.repository
+      .createQueryBuilder('appointment')
+      .where('appointment.doctorId = :doctorId', { doctorId })
+      .andWhere('appointment.patientId = :patientId', { patientId })
+      .andWhere('appointment.status IN (:...statuses)', { statuses })
+      .getExists();
   }
 }
