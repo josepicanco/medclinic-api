@@ -4,6 +4,7 @@ import { DataSource } from 'typeorm';
 import { AppEnv } from './config/env';
 import { AppointmentController } from './controllers/appointment.controller';
 import { AuthController } from './controllers/auth.controller';
+import { CalendarController } from './controllers/calendar.controller';
 import { DoctorController } from './controllers/doctor.controller';
 import { PatientController } from './controllers/patient.controller';
 import { UserController } from './controllers/user.controller';
@@ -17,6 +18,7 @@ import { WorkScheduleRepository } from './repositories/work-schedule.repository'
 import { AdminSeedService } from './services/admin-seed.service';
 import { AppointmentService } from './services/appointment.service';
 import { AuthService } from './services/auth.service';
+import { CalendarService } from './services/calendar.service';
 import { DoctorService } from './services/doctor.service';
 import { PatientService } from './services/patient.service';
 import { UserService } from './services/user.service';
@@ -32,6 +34,7 @@ export interface AppContainer {
   readonly patientController: PatientController;
   readonly doctorController: DoctorController;
   readonly workScheduleController: WorkScheduleController;
+  readonly calendarController: CalendarController;
   readonly appointmentController: AppointmentController;
 }
 
@@ -51,6 +54,7 @@ export function buildContainer(dataSource: DataSource, env: AppEnv): AppContaine
   const patientService = new PatientService(patientRepository);
   const doctorService = new DoctorService(doctorRepository, userRepository, passwordUtil);
   const workScheduleService = new WorkScheduleService(doctorRepository, workScheduleRepository);
+  const calendarService = new CalendarService(doctorRepository, workScheduleRepository, appointmentRepository);
   const appointmentService = new AppointmentService(appointmentRepository, doctorRepository);
 
   return {
@@ -61,6 +65,7 @@ export function buildContainer(dataSource: DataSource, env: AppEnv): AppContaine
     patientController: new PatientController(patientService),
     doctorController: new DoctorController(doctorService),
     workScheduleController: new WorkScheduleController(workScheduleService),
+    calendarController: new CalendarController(calendarService),
     appointmentController: new AppointmentController(appointmentService),
   };
 }

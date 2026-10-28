@@ -78,6 +78,15 @@ export class InMemoryAppointmentRepository implements IAppointmentRepository {
     return paginate(matches, filter);
   }
 
+  public async findActiveByDoctorInPeriod(doctorId: number, period: Period): Promise<Appointment[]> {
+    return this.items.filter(
+      (appointment) =>
+        appointment.doctorId === doctorId &&
+        appointment.status !== AppointmentStatus.CANCELLED &&
+        periodsOverlap(appointment, period),
+    );
+  }
+
   public async updateStatus(appointment: Appointment, status: AppointmentStatus): Promise<Appointment> {
     appointment.status = status;
     return appointment;

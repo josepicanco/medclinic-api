@@ -37,6 +37,7 @@ export interface IAppointmentRepository {
   runBookingTransaction<T>(work: (transaction: IBookingTransaction) => Promise<T>): Promise<T>;
   findById(id: number): Promise<Appointment | null>;
   list(filter: AppointmentFilter): Promise<Page<Appointment>>;
+  findActiveByDoctorInPeriod(doctorId: number, period: Period): Promise<Appointment[]>;
   updateStatus(appointment: Appointment, status: AppointmentStatus): Promise<Appointment>;
 }
 
@@ -150,6 +151,17 @@ export class AppointmentRepository implements IAppointmentRepository {
       .getManyAndCount();
 
     return { items, total, page: filter.page, pageSize: filter.pageSize };
+  }
+
+  public async findActiveByDoctorInPeriod(doctorId: number, period: Period): Promise<Appointment[]> {
+    return this.repository
+      .createQueryBuilder('appointment')
+      .where('appointment.doctorId = :doctorId', { doctorId })
+      .andWhere('appointment.status <> :cancelled', { cancelled: AppointmentStatus.CANCELLED })
+      .andWhere('appointment.startsAt < :endsAt', { endsAt: period.endsAt })
+      .andWhere('appointment.endsAt > :startsAt', { startsAt: period.startsAt })
+      .orderBy('appointment.startsAt', 'ASC')
+      .getMany();
   }
 
   public async updateStatus(appointment: Appointment, status: AppointmentStatus): Promise<Appointment> {
