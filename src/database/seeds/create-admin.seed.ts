@@ -1,35 +1,23 @@
 import 'reflect-metadata';
 
 import { env } from '../../config/env';
-import { UserRole } from '../../enums/user-role.enum';
 import { UserRepository } from '../../repositories/user.repository';
+import { AdminSeedService } from '../../services/admin-seed.service';
 import { PasswordUtil } from '../../utils/password.util';
 import { AppDataSource, initializeDatabase } from '../data-source';
 
-// o cadastro publico so cria ATENDENTE, entao o primeiro ADMIN sai daqui
+// nao existe rota publica que crie admin, entao o primeiro sai daqui (o server tambem chama na subida)
 async function createAdminSeed(): Promise<void> {
-  await initializeDatabase();
+  const dataSource = await initializeDatabase();
+  const seed = new AdminSeedService(new UserRepository(dataSource), new PasswordUtil(env.bcryptSaltRounds));
+  const result = await seed.ensureAdmin(env.seedAdmin);
 
-  const userRepository = new UserRepository();
-  const email = env.seedAdmin.email.toLowerCase();
-  const existingAdmin = await userRepository.findByEmail(email);
+  console.log(
+    result === 'created'
+      ? `[seed] Administrador criado com sucesso: ${env.seedAdmin.email}`
+      : `[seed] Administrador já existe: ${env.seedAdmin.email}`,
+  );
 
-  if (existingAdmin) {
-    console.log(`[seed] Administrador já existe: ${email}`);
-    await AppDataSource.destroy();
-    return;
-  }
-
-  const passwordHash = await PasswordUtil.hash(env.seedAdmin.password);
-
-  const admin = await userRepository.create({
-    name: env.seedAdmin.name,
-    email,
-    passwordHash,
-    role: UserRole.ADMIN,
-  });
-
-  console.log(`[seed] Administrador criado com sucesso: ${admin.email} (id: ${admin.id})`);
   await AppDataSource.destroy();
 }
 

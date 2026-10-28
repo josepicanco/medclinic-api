@@ -1,13 +1,22 @@
 import bcrypt from 'bcryptjs';
 
-import { env } from '../config/env';
+export interface IPasswordHasher {
+  hash(plainPassword: string): Promise<string>;
+  compare(plainPassword: string, passwordHash: string): Promise<boolean>;
+}
 
-export class PasswordUtil {
-  public static async hash(plainPassword: string): Promise<string> {
-    return bcrypt.hash(plainPassword, env.bcryptSaltRounds);
+export class PasswordUtil implements IPasswordHasher {
+  private readonly saltRounds: number;
+
+  constructor(saltRounds: number) {
+    this.saltRounds = saltRounds;
   }
 
-  public static async compare(plainPassword: string, passwordHash: string): Promise<boolean> {
+  public async hash(plainPassword: string): Promise<string> {
+    return bcrypt.hash(plainPassword, this.saltRounds);
+  }
+
+  public async compare(plainPassword: string, passwordHash: string): Promise<boolean> {
     return bcrypt.compare(plainPassword, passwordHash);
   }
 }

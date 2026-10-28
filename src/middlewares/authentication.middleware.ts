@@ -1,12 +1,13 @@
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Request, RequestHandler, Response } from 'express';
 
 import { UnauthorizedError } from '../errors/app-error';
-import { JwtUtil } from '../utils/jwt.util';
+import { AuthenticatedUser } from '../types/authenticated-user';
+import { ITokenProvider } from '../utils/jwt.util';
 
 const BEARER_PREFIX = 'Bearer ';
 
-export function authenticate(request: Request, _response: Response, next: NextFunction): void {
-  try {
+export function authenticate(tokenProvider: ITokenProvider): RequestHandler {
+  return (request: Request, _response: Response, next: NextFunction): void => {
     const authorizationHeader = request.headers.authorization;
 
     if (!authorizationHeader) {
@@ -23,12 +24,16 @@ export function authenticate(request: Request, _response: Response, next: NextFu
       throw new UnauthorizedError('Token de autenticação não informado.');
     }
 
-    const payload = JwtUtil.verify(token);
-
-    request.user = { id: payload.sub, role: payload.role };
-
+    request.user = tokenProvider.verify(token);
     next();
-  } catch (error) {
-    next(error);
+  };
+}
+
+// usuario do token; a rota precisa ter passado pelo authenticate
+export function getAuthenticatedUser(request: Request): AuthenticatedUser {
+  if (!request.user) {
+    throw new UnauthorizedError('Não autenticado.');
   }
+
+  return request.user;
 }

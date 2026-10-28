@@ -1,17 +1,19 @@
 import { Request, Response, Router } from 'express';
 
-import { adminRoutes } from './admin.routes';
-import { authRoutes } from './auth.routes';
-import { userRoutes } from './user.routes';
+import { AppContainer } from '../container';
+import { createAuthRoutes } from './auth.routes';
+import { createUserRoutes } from './user.routes';
 
-const routes = Router();
+export function createRoutes(container: AppContainer): Router {
+  const routes = Router();
+  const { authenticate } = container;
 
-routes.get('/health', (_request: Request, response: Response) => {
-  response.status(200).json({ status: 'ok', service: 'MedClinic API', stage: 'auth' });
-});
+  routes.get('/health', (_request: Request, response: Response) => {
+    response.status(200).json({ status: 'ok' });
+  });
 
-routes.use('/auth', authRoutes);
-routes.use('/users', userRoutes);
-routes.use('/admin', adminRoutes);
+  routes.use('/auth', createAuthRoutes(container.authController));
+  routes.use('/users', createUserRoutes(container.userController, authenticate));
 
-export { routes };
+  return routes;
+}

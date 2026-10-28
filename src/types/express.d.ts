@@ -1,9 +1,4 @@
-import { UserRole } from '../enums/user-role.enum';
-
-export interface AuthenticatedUser {
-  readonly id: string;
-  readonly role: UserRole;
-}
+import { AuthenticatedUser } from './authenticated-user';
 
 declare global {
   namespace Express {

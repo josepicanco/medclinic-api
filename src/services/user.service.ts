@@ -1,48 +1,45 @@
 import { CreateUserDTO } from '../dtos/create-user.dto';
 import { UserResponseDTO, toUserResponseDTO } from '../dtos/user-response.dto';
-import { User } from '../entities/user.entity';
-import { ConflictError, NotFoundError } from '../errors/app-error';
-import { IUserRepository, UserRepository } from '../repositories/user.repository';
-import { PasswordUtil } from '../utils/password.util';
+import { UserRole } from '../enums/user-role.enum';
+import { BadRequestError, ConflictError, NotFoundError } from '../errors/app-error';
+import { IUserRepository } from '../repositories/user.repository';
+import { IPasswordHasher } from '../utils/password.util';
 
 export class UserService {
   private readonly userRepository: IUserRepository;
+  private readonly passwordHasher: IPasswordHasher;
 
-  constructor(userRepository: IUserRepository = new UserRepository()) {
+  constructor(userRepository: IUserRepository, passwordHasher: IPasswordHasher) {
     this.userRepository = userRepository;
+    this.passwordHasher = passwordHasher;
   }
 
-  public async register(data: CreateUserDTO): Promise<UserResponseDTO> {
-    const emailAlreadyUsed = await this.userRepository.existsByEmail(data.email);
+  // RF13: so admin chega aqui (conferido na rota). RN03: o perfil doctor nao sai por esta
+  // rota porque nao existe acesso de medico sem CRM; medico nasce em POST /doctors
+  public async create(data: CreateUserDTO): Promise<UserResponseDTO> {
+    const roles = [...new Set(data.roles)];
 
-    if (emailAlreadyUsed) {
-      throw new ConflictError('Já existe um usuário cadastrado com este e-mail.');
+    if (roles.includes(UserRole.DOCTOR)) {
+      throw new BadRequestError('O perfil doctor é concedido apenas pelo cadastro de médico (POST /doctors).');
     }
 
-    const passwordHash = await PasswordUtil.hash(data.password);
+    if (await this.userRepository.existsByEmail(data.email)) {
+      throw new ConflictError('EMAIL_JA_CADASTRADO', 'Já existe um usuário cadastrado com este e-mail.');
+    }
 
-    const createdUser = await this.userRepository.create({
-      name: data.name,
-      email: data.email,
-      passwordHash,
-      role: data.role,
-    });
+    const passwordHash = await this.passwordHasher.hash(data.password);
+    const createdUser = await this.userRepository.create({ name: data.name, email: data.email, passwordHash, roles });
 
     return toUserResponseDTO(createdUser);
   }
 
-  public async findProfileById(id: string): Promise<UserResponseDTO> {
-    const user = await this.findEntityById(id);
-    return toUserResponseDTO(user);
-  }
-
-  private async findEntityById(id: string): Promise<User> {
+  public async findProfileById(id: number): Promise<UserResponseDTO> {
     const user = await this.userRepository.findById(id);
 
     if (!user) {
       throw new NotFoundError('Usuário não encontrado.');
     }
 
-    return user;
+    return toUserResponseDTO(user);
   }
 }

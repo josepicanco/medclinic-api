@@ -1,7 +1,7 @@
 {
   "name": "medclinic-api",
   "version": "1.0.0",
-  "description": "MedClinic API - Etapa 1: Autenticacao e Autorizacao (Node.js + TypeScript + Express + TypeORM + PostgreSQL)",
+  "description": "MedClinic API - Etapa 2: Agendamento, escala e prontuario (Node.js + TypeScript + Express + TypeORM + PostgreSQL)",
   "main": "dist/server.js",
   "engines": {
     "node": ">=22.0.0"
@@ -37,7 +37,8 @@
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.12.0",
     "reflect-metadata": "^0.2.2",
-    "typeorm": "^0.3.20"
+    "typeorm": "^0.3.20",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",

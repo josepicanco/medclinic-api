@@ -1,12 +1,15 @@
 import 'dotenv/config';
 
 export interface DatabaseConfig {
+  readonly url?: string;
   readonly host: string;
   readonly port: number;
   readonly username: string;
   readonly password: string;
   readonly database: string;
   readonly logging: boolean;
+  readonly ssl: boolean;
+  readonly sslRejectUnauthorized: boolean;
 }
 
 export interface JwtConfig {
@@ -14,17 +17,20 @@ export interface JwtConfig {
   readonly expiresIn: string;
 }
 
+export interface SeedAdminConfig {
+  readonly name: string;
+  readonly email: string;
+  readonly password: string;
+}
+
 export interface AppEnv {
   readonly nodeEnv: 'development' | 'production' | 'test';
   readonly port: number;
+  readonly runMigrations: boolean;
   readonly database: DatabaseConfig;
   readonly jwt: JwtConfig;
   readonly bcryptSaltRounds: number;
-  readonly seedAdmin: {
-    readonly name: string;
-    readonly email: string;
-    readonly password: string;
-  };
+  readonly seedAdmin: SeedAdminConfig;
 }
 
 // se faltar variavel obrigatoria a API nem sobe
@@ -61,17 +67,33 @@ function numberEnv(key: string, fallback: number): number {
   return parsed;
 }
 
+function booleanEnv(key: string, fallback: boolean): boolean {
+  return optionalEnv(key, String(fallback)).toLowerCase() === 'true';
+}
+
+// com DATABASE_URL (Neon/Render) as variaveis DB_* deixam de ser obrigatorias
+function loadDatabaseConfig(): DatabaseConfig {
+  const url = optionalEnv('DATABASE_URL', '');
+  const hasUrl = url !== '';
+
+  return {
+    url: hasUrl ? url : undefined,
+    host: optionalEnv('DB_HOST', 'localhost'),
+    port: numberEnv('DB_PORT', 5432),
+    username: hasUrl ? optionalEnv('DB_USERNAME', '') : requiredEnv('DB_USERNAME'),
+    password: hasUrl ? optionalEnv('DB_PASSWORD', '') : requiredEnv('DB_PASSWORD'),
+    database: hasUrl ? optionalEnv('DB_DATABASE', '') : requiredEnv('DB_DATABASE'),
+    logging: booleanEnv('DB_LOGGING', false),
+    ssl: booleanEnv('DB_SSL', false),
+    sslRejectUnauthorized: booleanEnv('DB_SSL_REJECT_UNAUTHORIZED', true),
+  };
+}
+
 export const env: AppEnv = {
   nodeEnv: optionalEnv('NODE_ENV', 'development') as AppEnv['nodeEnv'],
   port: numberEnv('PORT', 3333),
-  database: {
-    host: optionalEnv('DB_HOST', 'localhost'),
-    port: numberEnv('DB_PORT', 5432),
-    username: requiredEnv('DB_USERNAME'),
-    password: requiredEnv('DB_PASSWORD'),
-    database: requiredEnv('DB_DATABASE'),
-    logging: optionalEnv('DB_LOGGING', 'false') === 'true',
-  },
+  runMigrations: booleanEnv('RUN_MIGRATIONS', true),
+  database: loadDatabaseConfig(),
   jwt: {
     secret: requiredEnv('JWT_SECRET'),
     expiresIn: optionalEnv('JWT_EXPIRES_IN', '1h'),
@@ -79,7 +101,7 @@ export const env: AppEnv = {
   bcryptSaltRounds: numberEnv('BCRYPT_SALT_ROUNDS', 10),
   seedAdmin: {
     name: optionalEnv('ADMIN_NAME', 'Administrador do Sistema'),
-    email: optionalEnv('ADMIN_EMAIL', 'admin@medclinic.com'),
-    password: optionalEnv('ADMIN_PASSWORD', 'Admin@123'),
+    email: requiredEnv('ADMIN_EMAIL').toLowerCase(),
+    password: requiredEnv('ADMIN_PASSWORD'),
   },
 };

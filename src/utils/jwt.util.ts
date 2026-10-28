@@ -1,26 +1,36 @@
 import jwt, { JwtPayload, SignOptions } from 'jsonwebtoken';
 
-import { env } from '../config/env';
-import { UserRole, isUserRole } from '../enums/user-role.enum';
+import { isUserRole } from '../enums/user-role.enum';
 import { UnauthorizedError } from '../errors/app-error';
+import { AuthenticatedUser } from '../types/authenticated-user';
 
-export interface TokenPayload {
-  readonly sub: string;
-  readonly role: UserRole;
+export interface ITokenProvider {
+  sign(user: AuthenticatedUser): string;
+  verify(token: string): AuthenticatedUser;
 }
 
-export class JwtUtil {
-  public static sign(payload: TokenPayload): string {
-    const options: SignOptions = {
-      expiresIn: env.jwt.expiresIn as SignOptions['expiresIn'],
-    };
+export class JwtUtil implements ITokenProvider {
+  private readonly secret: string;
+  private readonly expiresIn: string;
 
-    return jwt.sign({ role: payload.role }, env.jwt.secret, { ...options, subject: payload.sub });
+  constructor(secret: string, expiresIn: string) {
+    this.secret = secret;
+    this.expiresIn = expiresIn;
   }
 
-  public static verify(token: string): TokenPayload {
+  public sign(user: AuthenticatedUser): string {
+    const options: SignOptions = {
+      algorithm: 'HS256',
+      expiresIn: this.expiresIn as SignOptions['expiresIn'],
+      subject: String(user.id),
+    };
+
+    return jwt.sign({ roles: user.roles }, this.secret, options);
+  }
+
+  public verify(token: string): AuthenticatedUser {
     try {
-      const decoded = jwt.verify(token, env.jwt.secret);
+      const decoded = jwt.verify(token, this.secret, { algorithms: ['HS256'] });
 
       if (typeof decoded === 'string') {
         throw new UnauthorizedError('Token inválido.');
@@ -40,13 +50,14 @@ export class JwtUtil {
     }
   }
 
-  private static parsePayload(decoded: JwtPayload): TokenPayload {
-    const { sub, role } = decoded;
+  private static parsePayload(decoded: JwtPayload): AuthenticatedUser {
+    const id = Number(decoded.sub);
+    const roles: unknown = decoded.roles;
 
-    if (typeof sub !== 'string' || !isUserRole(role)) {
+    if (!Number.isInteger(id) || id <= 0 || !Array.isArray(roles) || !roles.every(isUserRole)) {
       throw new UnauthorizedError('Token inválido.');
     }
 
-    return { sub, role };
+    return { id, roles };
   }
 }
