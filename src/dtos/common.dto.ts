@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { isValidDate } from '../rules/clinic-time.rules';
 import { Page } from '../types/pagination.types';
 
 const MAX_INT = 2_147_483_647;
@@ -18,6 +19,8 @@ export const idNumberSchema = z.number().int().positive().max(MAX_INT);
 export const idParamSchema = z.object({ id: idStringSchema });
 export const patientIdParamSchema = z.object({ patientId: idStringSchema });
 export const doctorIdParamSchema = z.object({ doctorId: idStringSchema });
+
+export const dateSchema = z.string().refine(isValidDate, 'deve estar no formato YYYY-MM-DD');
 
 export const nameSchema = z.string().trim().min(1, 'não pode ser vazio').max(120);
 
