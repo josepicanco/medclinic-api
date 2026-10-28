@@ -4,25 +4,36 @@
   "description": "MedClinic API - Etapa 1: Autenticacao e Autorizacao (Node.js + TypeScript + Express + TypeORM + PostgreSQL)",
   "main": "dist/server.js",
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only --exit-child src/server.ts",
     "build": "rimraf dist && tsc",
     "start": "node dist/server.js",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit -p tsconfig.spec.json",
+    "test": "vitest run",
+    "test:cov": "vitest run --coverage",
     "typeorm": "typeorm-ts-node-commonjs --dataSource=src/database/data-source.ts",
     "migration:generate": "npm run typeorm -- migration:generate src/database/migrations/Migration",
     "migration:run": "npm run typeorm -- migration:run",
     "migration:revert": "npm run typeorm -- migration:revert",
     "seed:admin": "ts-node-dev --transpile-only --exit-child src/database/seeds/create-admin.seed.ts"
   },
-  "keywords": ["nodejs", "typescript", "express", "typeorm", "postgresql", "jwt", "rbac"],
+  "keywords": [
+    "nodejs",
+    "typescript",
+    "express",
+    "typeorm",
+    "postgresql",
+    "jwt",
+    "rbac",
+    "vitest"
+  ],
   "license": "MIT",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "dotenv": "^16.4.5",
-    "express": "^4.19.2",
+    "express": "^5.3.0",
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.12.0",
     "reflect-metadata": "^0.2.2",
@@ -30,11 +41,13 @@
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
-    "@types/express": "^4.17.21",
+    "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.6",
-    "@types/node": "^20.14.10",
+    "@types/node": "^22.20.5",
+    "@vitest/coverage-v8": "^3.2.7",
     "rimraf": "^5.0.9",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.5.3"
+    "typescript": "^5.5.3",
+    "vitest": "^3.2.7"
   }
 }
