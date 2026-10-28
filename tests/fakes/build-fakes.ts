@@ -1,4 +1,5 @@
 import { FakePasswordHasher } from './fake-password-hasher';
+import { InMemoryAppointmentRepository } from './in-memory-appointment.repository';
 import { InMemoryDoctorRepository } from './in-memory-doctor.repository';
 import { InMemoryPatientRepository } from './in-memory-patient.repository';
 import { InMemoryUserRepository } from './in-memory-user.repository';
@@ -10,6 +11,11 @@ export function buildFakes() {
   const patientRepository = new InMemoryPatientRepository();
   const doctorRepository = new InMemoryDoctorRepository(userRepository);
   const workScheduleRepository = new InMemoryWorkScheduleRepository();
+  const appointmentRepository = new InMemoryAppointmentRepository(
+    doctorRepository,
+    patientRepository,
+    workScheduleRepository,
+  );
   const passwordHasher = new FakePasswordHasher();
 
   return {
@@ -17,6 +23,7 @@ export function buildFakes() {
     patientRepository,
     doctorRepository,
     workScheduleRepository,
+    appointmentRepository,
     passwordHasher,
   };
 }
