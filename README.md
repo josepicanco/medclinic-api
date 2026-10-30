@@ -1,30 +1,37 @@
 # MedClinic API
 
-API REST da MedClinic, uma clínica médica de pequeno porte. Nesta etapa 1 o foco
-é só a parte de acesso ao sistema: cadastro de usuários, login com JWT e
-controle de acesso por perfil (RBAC).
+API REST da MedClinic, uma clínica médica de pequeno porte, de uso interno da
+administração, da secretaria e dos médicos.
 
-Especialidades, médicos, pacientes e consultas ficam para a próxima etapa, em
-cima desta mesma base.
+Na etapa 1 fiz a base de acesso (usuários, login com JWT e RBAC). Esta é a
+**etapa 2 — agendamento, escala e prontuário**: em cima daquela base entram
+pacientes, médicos, escala de trabalho, agenda do médico, agendamento sem
+conflito (inclusive com duas requisições ao mesmo tempo), ciclo de vida da
+consulta e prontuário com acesso pelo vínculo de atendimento. A API segue o
+contrato da Seção 4.9 do enunciado e é publicada a cada merge na `main`.
+
+- **API publicada:** `https://medclinic-api-SEU-NOME.onrender.com` (saúde em `/api/v1/health`)
+- **Board do projeto:** `https://github.com/users/josepicanco/projects/N`
 
 ## Tecnologias
 
-- Node.js 18+
-- TypeScript
-- Express
-- TypeORM
-- PostgreSQL
-- bcryptjs (hash de senha)
-- jsonwebtoken (JWT)
-- dotenv
-- ts-node-dev (ambiente de desenvolvimento)
+- Node.js 22
+- TypeScript (`strict: true`)
+- Express 5
+- TypeORM 0.3 (migrations, QueryBuilder, transações e lock pessimista)
+- PostgreSQL 16 (Neon/Render em produção, com SSL)
+- zod (validação de entrada)
+- bcryptjs (hash de senha) e jsonwebtoken (JWT)
+- Vitest + cobertura v8
+- Docker (multi-stage), GitHub Actions, GHCR e Render
+- dotenv e ts-node-dev (desenvolvimento)
 
 ## Como rodar o projeto
 
 ### 1. Pré-requisitos
 
-- Node.js 18 ou superior
-- PostgreSQL 14 ou superior rodando
+- Node.js 22 ou superior
+- Docker (para subir o PostgreSQL pelo `docker compose`) ou um PostgreSQL 14+ já instalado
 - Um cliente HTTP para testar (Insomnia, Postman ou a extensão REST Client do VS Code)
 
 ### 2. Instalar as dependências
@@ -32,291 +39,302 @@ cima desta mesma base.
 ```bash
 git clone https://github.com/josepicanco/medclinic-api.git
 cd medclinic-api
-npm install
+npm ci
 ```
 
-### 3. Criar o banco
-
-```bash
-createdb medclinic
-```
-
-ou pelo psql:
-
-```bash
-psql -U postgres -c "CREATE DATABASE medclinic;"
-```
-
-### 4. Configurar o .env
-
-Copie o arquivo de exemplo e ajuste com os dados do seu PostgreSQL:
+### 3. Configurar o .env
 
 ```bash
 cp .env.example .env
 ```
 
-| Variável | Para que serve | Exemplo |
-|---|---|---|
-| `NODE_ENV` | Ambiente de execução | `development` |
-| `PORT` | Porta da API | `3333` |
-| `DB_HOST` | Host do banco | `localhost` |
-| `DB_PORT` | Porta do banco | `5432` |
-| `DB_USERNAME` | Usuário do banco | `postgres` |
-| `DB_PASSWORD` | Senha do banco | `postgres` |
-| `DB_DATABASE` | Nome do banco | `medclinic` |
-| `DB_LOGGING` | Mostra as queries no terminal | `false` |
-| `JWT_SECRET` | Chave usada para assinar o token | uma string longa e aleatória |
-| `JWT_EXPIRES_IN` | Tempo de validade do token | `1h` |
-| `BCRYPT_SALT_ROUNDS` | Custo do hash da senha | `10` |
-| `ADMIN_NAME`, `ADMIN_EMAIL`, `ADMIN_PASSWORD` | Dados do admin criado pelo seed | ver `.env.example` |
+Preencha pelo menos `DB_PASSWORD`, `JWT_SECRET` e `ADMIN_PASSWORD`. O `.env`
+está no `.gitignore`, então as credenciais não vão para o repositório.
 
-O `.env` está no `.gitignore`, então as credenciais não vão para o repositório.
-
-### 5. Criar as tabelas
+### 4. Subir o banco
 
 ```bash
-npm run migration:run
+docker compose up -d db
 ```
 
-Também deixei o SQL equivalente em `docs/schema.sql`, caso prefira rodar direto
-no banco:
+O `docker-compose.yml` sobe um PostgreSQL 16 usando as mesmas variáveis
+`DB_USERNAME`, `DB_PASSWORD`, `DB_DATABASE` e `DB_PORT` do `.env`.
 
-```bash
-psql -U postgres -d medclinic -f docs/schema.sql
-```
-
-### 6. Criar o administrador
-
-```bash
-npm run seed:admin
-```
-
-O cadastro pela rota `/auth/register` cria usuários `ATENDENTE` por padrão, então
-o primeiro `ADMIN` é criado pelo seed.
-
-### 7. Subir a API
+### 5. Subir a API
 
 ```bash
 npm run dev
 ```
 
-Se estiver tudo certo, aparece no terminal:
+Na subida a API roda as migrations pendentes e cria o administrador inicial se
+ele ainda não existir. Se estiver tudo certo, aparece no terminal:
 
 ```
 [database] Conexão com o PostgreSQL estabelecida.
-[server] MedClinic API rodando em http://localhost:3333 (development)
+[database] Migrations executadas: ...
+[seed] Administrador criado: admin@medclinic.com
+[server] MedClinic API rodando em http://0.0.0.0:3333 (development)
 ```
 
-Outros scripts:
+Para testar: `curl http://localhost:3333/api/v1/health` → `{"status":"ok"}`.
+As requisições de exemplo estão em `docs/requests.http`.
 
-```bash
-npm run build      # compila para dist/
-npm start          # roda a versão compilada
-npm run typecheck  # checa os tipos sem gerar arquivos
-```
+## Variáveis de ambiente
+
+São as mesmas chaves do `.env.example`, sem valores reais.
+
+| Variável | Para que serve | Exemplo |
+|---|---|---|
+| `NODE_ENV` | Ambiente de execução | `development` |
+| `PORT` | Porta da API (a API escuta em `0.0.0.0`) | `3333` |
+| `RUN_MIGRATIONS` | Roda as migrations pendentes na subida | `true` |
+| `DATABASE_URL` | URL completa do banco gerenciado. Se preenchida, as `DB_*` abaixo deixam de ser obrigatórias | `postgresql://...` |
+| `DB_HOST` | Host do banco | `localhost` |
+| `DB_PORT` | Porta do banco | `5432` |
+| `DB_USERNAME` | Usuário do banco | `postgres` |
+| `DB_PASSWORD` | Senha do banco | — |
+| `DB_DATABASE` | Nome do banco | `medclinic` |
+| `DB_LOGGING` | Mostra as queries no terminal | `false` |
+| `DB_SSL` | Liga SSL no DataSource (obrigatório no Neon/Render) | `true` em produção |
+| `DB_SSL_REJECT_UNAUTHORIZED` | Valida o certificado do servidor. Só use `false` se o provedor usar certificado próprio | `true` |
+| `JWT_SECRET` | Chave usada para assinar o token | uma string longa e aleatória |
+| `JWT_EXPIRES_IN` | Tempo de validade do token | `1h` |
+| `BCRYPT_SALT_ROUNDS` | Custo do hash da senha | `10` |
+| `ADMIN_NAME` | Nome do administrador criado pelo seed | `Administrador do Sistema` |
+| `ADMIN_EMAIL` | E-mail do administrador criado pelo seed | `admin@medclinic.com` |
+| `ADMIN_PASSWORD` | Senha do administrador criado pelo seed | — |
+
+## Comandos
+
+| Comando | O que faz |
+|---|---|
+| `npm run dev` | Sobe a API em modo desenvolvimento (ts-node-dev, com reload) |
+| `npm run build` | Compila `src/` para `dist/` |
+| `npm start` | Roda a versão compilada (`node dist/server.js`) |
+| `npm run migration:run` | Aplica as migrations pendentes |
+| `npm run migration:revert` | Desfaz a última migration |
+| `npm run seed:admin` | Cria o administrador inicial, se ainda não existir |
+| `npm test` | Roda os testes unitários |
+| `npm run test:cov` | Roda os testes com cobertura; reprova abaixo de 80% |
+| `npm run typecheck` | Checa os tipos de `src/` e `tests/` sem gerar arquivos |
+
+Em produção as migrations e o seed rodam sozinhos na subida do container.
 
 ## Arquitetura
 
-O projeto segue MVC em camadas. Uma requisição passa por:
+Continua o MVC em camadas da etapa 1. A diferença é que agora as camadas se
+ligam por injeção de dependência pelo construtor, montadas em um só lugar
+(`src/container.ts`), e nenhum service conhece TypeORM, Express ou variável de
+ambiente. Uma requisição passa por:
 
 ```
-routes -> middlewares -> controllers -> services -> repositories -> entities -> PostgreSQL
+routes -> authenticate (JWT) -> authorize (perfil) -> validate (zod) -> controller
+       -> service (regra de negócio) -> repository (TypeORM) -> PostgreSQL
+erro em qualquer ponto -> error-handler -> { statusCode, error, message }
 ```
 
 | Pasta | O que tem |
 |---|---|
+| `src/server.ts` | Conecta no banco, roda migrations e seed, sobe em `0.0.0.0:PORT` |
+| `src/app.ts` | Monta o Express com o prefixo `/api/v1`, a rota 404 e o tratamento de erros |
+| `src/container.ts` | Cria repositórios, services e controllers e liga tudo pelo construtor |
 | `src/routes` | Endpoints e os middlewares de cada rota |
-| `src/middlewares` | Autenticação (JWT), autorização (RBAC), rota não encontrada e tratamento de erros |
-| `src/controllers` | Recebem a requisição, validam a entrada e devolvem a resposta |
-| `src/services` | Regras de negócio (e-mail duplicado, hash da senha, login, token) |
-| `src/repositories` | Acesso ao banco com TypeORM |
-| `src/entities` | Entidade `User` |
-| `src/dtos` | Dados de entrada e saída, validação e conversão para resposta |
-| `src/database` | DataSource, migration e seed |
-| `src/errors` | Classes de erro com o status HTTP de cada uma |
-| `src/utils` | Hash de senha, JWT e validações |
+| `src/middlewares` | Autenticação (JWT), autorização (RBAC), validação, rota não encontrada e tratamento de erros |
+| `src/controllers` | Pegam os dados já validados, chamam o service e devolvem a resposta |
+| `src/services` | Regras de negócio (`*.service.ts`) |
+| `src/rules` | Regras puras sem dependência nenhuma (`*.rules.ts`): sobreposição de períodos, escala, fuso da clínica e transições de status |
+| `src/repositories` | Interface do repositório (`I*Repository`, a porta usada pelo service) e a implementação com TypeORM, no mesmo arquivo |
+| `src/entities` | Entidades do TypeORM |
+| `src/dtos` | Schemas zod de entrada e conversão da entidade para a resposta |
+| `src/enums` | Perfis (`admin`, `secretary`, `doctor`) e status da consulta |
+| `src/errors` | Classes de erro com o código do catálogo (sem status HTTP) |
+| `src/utils` | Hash de senha, JWT e helpers de banco |
+| `src/database` | DataSource, migrations e seed |
 | `src/config` | Leitura das variáveis de ambiente |
-| `src/types` | Tipagem do `req.user` no Express |
-| `docs` | `schema.sql` e `requests.http` com as requisições de teste |
+| `src/types` | Usuário autenticado, paginação e a tipagem do `request.user` |
+| `tests` | Dublês em memória das portas (`tests/fakes`) e testes unitários (`tests/unit`) |
+| `docs` | `schema.sql` (estrutura final do banco) e `requests.http` |
 
-`server.ts` conecta no banco e sobe a porta; `app.ts` monta o Express com as
-rotas e os middlewares.
+### Decisões de modelagem
+
+- **O que mudou da etapa 1.** As rotas foram para `/api/v1`, o login devolve
+  `{ "accessToken" }`, os perfis passaram de `ADMIN`/`ATENDENTE` para
+  `admin`/`secretary`/`doctor` e o cadastro público `/auth/register` saiu, porque
+  não pode existir rota aberta que crie usuário (RF13). A migration
+  `AlterUsersToRolesArray` converte os usuários que já existiam (`ADMIN` vira
+  `admin`, `ATENDENTE` vira `secretary`).
+- **Id inteiro.** Na etapa 1 o id do usuário era `uuid`. O contrato usa ids
+  numéricos (`"id": 1`), então a mesma migration troca o id de `users` para
+  `SERIAL`. Deu para fazer sem perder nada porque ainda não havia nenhuma
+  chave estrangeira apontando para `users`. As tabelas novas já nascem com
+  `SERIAL`.
+- **Perfis em array.** Um usuário pode ter mais de um perfil, então `roles` é
+  uma coluna `text[]` com um `CHECK` que só aceita os três valores. O token
+  leva o id (`sub`) e os perfis (`roles`).
+- **Médico = usuário + registro profissional.** São duas tabelas: `users`
+  (acesso) e `doctors` (CRM, com `user_id` único). O `DoctorRepository.createWithUser`
+  grava as duas na mesma transação, então CRM ou e-mail repetido desfaz tudo
+  (RN03). O perfil `doctor` não é concedido pelo `POST /users`: médico só nasce
+  pelo `POST /doctors`.
+- **Unicidade no banco (RP04).** `UQ_users_email`, `UQ_doctors_crm` e o índice
+  único parcial `UQ_patients_cpf_active`. O service consulta antes para devolver
+  o código certo, e o repositório traduz a violação do banco quando duas
+  gravações correm juntas.
+- **Paciente com remoção lógica (`deleted_at`).** O paciente tem consultas e
+  prontuário, e apagar a linha quebraria esse histórico. Removido, ele some das
+  listagens e das buscas, e o CPF pode ser cadastrado de novo.
+- **Escala em linhas, horas em minutos.** Um turno por linha em `work_shifts`,
+  com `start_minutes` e `end_minutes` (minutos desde 00:00 no horário de São
+  Paulo). Assim alinhar a grade e comparar turnos vira conta com inteiro; a API
+  continua recebendo e devolvendo `HH:MM`. Trocar a escala é apagar e inserir
+  na mesma transação.
+- **Instantes em `timestamptz` (RP05)**, e a consulta guarda o próprio
+  `ends_at`, calculado no momento de agendar pela duração do turno. Mudar a
+  escala depois não mexe em consulta marcada (RN15).
+- **Fuso da clínica.** A conversão UTC ↔ `America/Sao_Paulo` usa
+  `Intl.DateTimeFormat` (`src/rules/clinic-time.rules.ts`), sem depender do fuso
+  do servidor e sem offset fixo.
+- **Concorrência (RF07).** O `POST /appointments` roda numa transação que faz
+  `SELECT ... FOR UPDATE` na linha do **médico** (e depois na do paciente,
+  sempre nessa ordem para não dar deadlock) antes de verificar a escala e os
+  conflitos e gravar. A segunda requisição espera o lock, enxerga a consulta já
+  gravada e recebe `409 HORARIO_INDISPONIVEL`. Dentro da transação todas as
+  consultas usam o `EntityManager` dela (`BookingTransaction`).
+- **Conflito é interseção de períodos** (`a.inicio < b.fim && b.inicio < a.fim`),
+  ignorando as consultas canceladas.
+- **Troca de status.** Primeiro confiro o ciclo de vida (`422 TRANSICAO_INVALIDA`)
+  e depois a autoridade do perfil (`403 ACESSO_NEGADO`).
+- **Agenda.** O `GET /calendar` aceita no máximo 31 dias contando as duas pontas
+  e considera o dia inteiro no horário local.
+- **Erros.** A regra de negócio só lança a classe de erro com o código do
+  catálogo; quem transforma em status HTTP é o `error-handler.middleware.ts`.
+  Erro inesperado volta `500` no mesmo envelope, com `error: "ERRO_INTERNO"` e
+  sem stack trace.
+
+### Padrão de nomes
+
+| O quê | Padrão | Exemplo |
+|---|---|---|
+| Arquivos | `kebab-case` + sufixo da camada | `work-schedule.service.ts`, `appointment.repository.ts` |
+| Sufixos | `.entity`, `.repository`, `.service`, `.rules`, `.dto`, `.controller`, `.routes`, `.middleware`, `.util`, `.enum`, `.seed`, `.spec` | `appointment-status.rules.ts` |
+| Classes | `PascalCase`, entidade sem sufixo | `AppointmentService`, `Patient` |
+| Interfaces de porta | `I` + `PascalCase` | `IAppointmentRepository`, `IPasswordHasher` |
+| Tipos de DTO | `PascalCase` + `DTO` | `CreatePatientDTO`, `PatientResponseDTO` |
+| Funções, variáveis e campos | `camelCase` | `findShiftForSlot`, `startsAt` |
+| Constantes de módulo | `UPPER_SNAKE_CASE` | `MAX_CALENDAR_DAYS` |
+| Valores de enum | `UPPER_SNAKE_CASE` na chave, valor do contrato | `AppointmentStatus.IN_PROGRESS = 'in_progress'` |
+| Rotas | substantivo no plural, `kebab-case`, sob `/api/v1` | `/doctors/{doctorId}/work-schedule` |
+| Banco | tabelas e colunas em `snake_case`; restrições com prefixo `UQ_`, `FK_`, `CHK_`, `IDX_` | `appointments.starts_at`, `UQ_doctors_crm` |
+| Migrations | `<timestamp>-<Verbo><Objeto>.ts` | `1792886227905-CreateAppointmentsTable.ts` |
+| Branches | `tipo/assunto` | `feat/agendamento`, `ci/deploy` |
+| Commits | `tipo: descrição no imperativo` | `feat: valida horario do agendamento contra a escala` |
+
+## Testes e recorte da cobertura
+
+Os testes são unitários (Vitest) e rodam só sobre a regra de negócio, com
+dublês em memória construídos em cima das interfaces dos repositórios
+(`tests/fakes`). Nenhum teste usa banco, rede ou variável de ambiente.
+
+**Recorte** (`vitest.config.ts`): `src/services/**/*.service.ts` e
+`src/rules/**/*.rules.ts`. É onde está o que dá prejuízo quando quebra:
+validação do horário contra a escala, detecção de conflito, transição de
+status, posse do prontuário, unicidade e cadastro atômico do médico.
+Controllers, rotas, DTOs, entidades, migrations e repositórios ficam de fora
+porque não têm regra de negócio. O limiar é 80% em `lines`, `branches`,
+`functions` e `statements`, e o workflow do pull request reprova abaixo disso.
+
+| Caso mínimo (Seção 4.5) | Onde está |
+|---|---|
+| Sobreposição de períodos (os 5 cenários) | `tests/unit/rules/period.rules.spec.ts` |
+| Criação de agendamento (sucesso, fora do turno, desalinhado, não cabe, conflito do médico, conflito do paciente) | `tests/unit/services/appointment-booking.spec.ts` |
+| Validação da escala (sobrepostos recusados, encostados aceitos) | `tests/unit/services/work-schedule.service.spec.ts` e `tests/unit/rules/schedule.rules.spec.ts` |
+| Transição de status (válida e inválida) | `tests/unit/services/appointment-status.spec.ts` |
+| Prontuário (com vínculo escreve, sem vínculo 403) | `tests/unit/services/medical-record.service.spec.ts` |
+| Login (credencial inválida e comparação pelo hash) | `tests/unit/services/auth.service.spec.ts` |
+
+## Integração e publicação contínuas
+
+- `.github/workflows/pr-workflow.yml`: em todo pull request para a `main` roda
+  `npm ci`, checagem de tipos, build e `npm run test:cov`. O job `validate` é o
+  check obrigatório na proteção da branch `main`.
+- `.github/workflows/deploy.yml`: em todo push na `main` (merge de PR) faz o
+  build da imagem pelo `Dockerfile`, publica no GHCR (`latest` e o SHA do commit)
+  e chama o Deploy Hook do Render (segredo `RENDER_DEPLOY_HOOK_URL`).
+- As variáveis da aplicação ficam no painel do Render, nunca no repositório nem
+  no workflow.
 
 ## Perfis de acesso
 
-| Perfil | Valor | O que pode acessar |
+| Perfil | Quem é | O que faz |
 |---|---|---|
-| Administrador | `ADMIN` | Tudo, inclusive as rotas `/admin` |
-| Atendente | `ATENDENTE` | Rotas autenticadas, menos as de `/admin` (recebe 403) |
-
-O perfil fica salvo no usuário e vai dentro do token, no campo `role`. O
-middleware `authorize(...)` confere se o perfil do token está entre os
-permitidos na rota.
+| `admin` | administração | cria usuários, médicos e escalas; enxerga tudo; lê prontuário para auditoria |
+| `secretary` | secretaria | cadastra pacientes e agendamentos; cancela consulta agendada |
+| `doctor` | médico | vê as próprias consultas, conduz o atendimento e escreve o prontuário de quem atendeu |
 
 ## Endpoints
 
-Base URL: `http://localhost:3333`
+Base URL: `http://localhost:3333/api/v1`. Fora as rotas públicas, todas pedem
+`Authorization: Bearer <accessToken>`.
 
-Os exemplos abaixo também estão prontos para uso em `docs/requests.http`.
-
-### GET /health (público)
-
-Só para ver se a API está no ar.
-
-```json
-{ "status": "ok", "service": "MedClinic API", "stage": "auth" }
-```
-
-### POST /auth/register (público)
-
-Cadastra um usuário. A senha é salva como hash bcrypt.
-
-```json
-{
-  "name": "Maria Atendente",
-  "email": "maria@medclinic.com",
-  "password": "Senha@123",
-  "role": "ATENDENTE"
-}
-```
-
-| Campo | Obrigatório | Regra |
+| Método | Rota | Perfis |
 |---|---|---|
-| `name` | sim | mínimo de 3 caracteres |
-| `email` | sim | formato válido e não pode estar cadastrado |
-| `password` | sim | mínimo de 8 caracteres |
-| `role` | não | `ADMIN` ou `ATENDENTE` (padrão `ATENDENTE`) |
+| GET | `/health` | público |
+| POST | `/auth/login` | público |
+| GET | `/users/me` | autenticado |
+| POST | `/users` | `admin` |
+| POST | `/patients` | `admin`, `secretary` |
+| GET | `/patients?name=&page=&pageSize=` | autenticado |
+| GET | `/patients/{id}` | autenticado |
+| PATCH | `/patients/{id}` | `admin`, `secretary` |
+| DELETE | `/patients/{id}` | `admin` |
+| POST | `/doctors` | `admin` |
+| GET | `/doctors?name=&page=&pageSize=` | autenticado |
+| GET | `/doctors/{id}` | autenticado |
+| PUT | `/doctors/{doctorId}/work-schedule` | `admin` |
+| GET | `/doctors/{doctorId}/work-schedule` | autenticado |
+| GET | `/doctors/{doctorId}/calendar?from=&to=` | autenticado |
+| POST | `/appointments` | `admin`, `secretary` |
+| GET | `/appointments?doctorId=&patientId=&status=&from=&to=` | autenticado (`doctor` só vê as próprias) |
+| GET | `/appointments/{id}` | autenticado (`doctor` só as próprias) |
+| PATCH | `/appointments/{id}/status` | depende da transição (tabela abaixo) |
+| POST | `/patients/{patientId}/medical-records` | `doctor` com vínculo |
+| GET | `/patients/{patientId}/medical-records` | `doctor` com vínculo, `admin` |
 
-Resposta `201`:
+Transições de status:
 
-```json
-{
-  "message": "Usuário cadastrado com sucesso.",
-  "data": {
-    "id": "184642a8-de9a-41fc-9947-0ce107e7de4e",
-    "name": "Maria Atendente",
-    "email": "maria@medclinic.com",
-    "role": "ATENDENTE",
-    "createdAt": "2026-09-13T13:52:08.614Z"
-  }
-}
-```
-
-Erros: `400` se algum campo for inválido e `409` se o e-mail já existir.
-
-### POST /auth/login (público)
-
-```json
-{ "email": "admin@medclinic.com", "password": "Admin@123" }
-```
-
-Resposta `200`:
-
-```json
-{
-  "message": "Autenticação realizada com sucesso.",
-  "data": {
-    "user": {
-      "id": "d971482f-0f63-4347-8630-e4a63d4244d2",
-      "name": "Administrador do Sistema",
-      "email": "admin@medclinic.com",
-      "role": "ADMIN",
-      "createdAt": "2026-09-12T19:08:51.127Z"
-    },
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "expiresIn": "1h"
-  }
-}
-```
-
-O token leva o id do usuário (`sub`), o perfil (`role`) e a expiração (`exp`).
-
-Erros: `400` se faltar e-mail ou senha e `401` se as credenciais estiverem
-erradas. A mensagem é a mesma nos dois casos, para não revelar se o e-mail existe.
-
-### GET /users/me (precisa de token)
-
-Header: `Authorization: Bearer <token>`
-
-Retorna os dados do usuário do token.
-
-```json
-{
-  "message": "Usuário autenticado recuperado com sucesso.",
-  "data": {
-    "id": "184642a8-de9a-41fc-9947-0ce107e7de4e",
-    "name": "Maria Atendente",
-    "email": "maria@medclinic.com",
-    "role": "ATENDENTE",
-    "createdAt": "2026-09-13T13:52:08.614Z"
-  }
-}
-```
-
-Erro: `401` se o token estiver ausente, inválido ou expirado.
-
-### GET /admin/ping (precisa de token de ADMIN)
-
-Rota para testar o RBAC.
-
-```json
-{
-  "message": "pong - acesso autorizado ao recurso restrito de administrador.",
-  "data": {
-    "userId": "d971482f-0f63-4347-8630-e4a63d4244d2",
-    "role": "ADMIN",
-    "checkedAt": "2026-09-13T13:54:37.902Z"
-  }
-}
-```
-
-Erros: `401` sem token e `403` quando o usuário é `ATENDENTE`.
-
-## Erros
-
-Todos os erros passam pelo middleware central e voltam no mesmo formato:
-
-```json
-{
-  "status": "error",
-  "statusCode": 409,
-  "message": "Já existe um usuário cadastrado com este e-mail.",
-  "path": "/auth/register",
-  "timestamp": "2026-09-13T13:52:19.045Z"
-}
-```
-
-Quando é erro de validação, vem também o `details` com a lista de problemas:
-
-```json
-{
-  "status": "error",
-  "statusCode": 400,
-  "message": "Dados inválidos para o cadastro de usuário.",
-  "details": [
-    "O campo \"name\" deve possuir no mínimo 3 caracteres.",
-    "O campo \"email\" deve conter um endereço de e-mail válido."
-  ],
-  "path": "/auth/register",
-  "timestamp": "2026-09-13T13:53:02.771Z"
-}
-```
-
-| Status | Quando acontece |
+| De → para | Quem pode |
 |---|---|
-| `400` | Campo obrigatório faltando, e-mail inválido ou JSON mal formatado |
-| `401` | Credenciais erradas ou token ausente, inválido ou expirado |
-| `403` | Usuário logado sem o perfil exigido pela rota |
-| `404` | Rota que não existe |
-| `409` | E-mail já cadastrado |
-| `500` | Erro inesperado no servidor |
+| `scheduled` → `in_progress` | `admin`, médico da consulta |
+| `scheduled` → `cancelled` | `admin`, `secretary`, médico da consulta |
+| `in_progress` → `done` | `admin`, médico da consulta |
+| `in_progress` → `cancelled` | `admin`, médico da consulta |
 
-## Observações
+## Erros e listagens
 
-- O `synchronize` do TypeORM está desligado. As tabelas são criadas pela migration.
-- A senha nunca volta nas respostas: todo retorno de usuário passa pelo
-  `toUserResponseDTO`, que não inclui o hash.
-- Os services recebem o repositório pelo construtor, o que facilita trocar por
-  um mock quando eu for escrever testes.
-- Cada tipo de erro é uma classe (`BadRequestError`, `UnauthorizedError`,
-  `ForbiddenError`, `NotFoundError`, `ConflictError`) que já carrega o status HTTP.
+Todo erro volta no mesmo envelope, com um dos códigos do catálogo do contrato:
+
+```json
+{
+  "statusCode": 409,
+  "error": "HORARIO_INDISPONIVEL",
+  "message": "Este horário acabou de ser ocupado."
+}
+```
+
+| Status | `error` |
+|---|---|
+| `400` | `DADOS_INVALIDOS` |
+| `401` | `NAO_AUTENTICADO`, `CREDENCIAIS_INVALIDAS` |
+| `403` | `ACESSO_NEGADO` |
+| `404` | `RECURSO_NAO_ENCONTRADO` |
+| `409` | `EMAIL_JA_CADASTRADO`, `CPF_JA_CADASTRADO`, `CRM_JA_CADASTRADO`, `HORARIO_INDISPONIVEL`, `PACIENTE_INDISPONIVEL` |
+| `422` | `HORARIO_FORA_DA_ESCALA`, `TRANSICAO_INVALIDA` |
+
+Toda listagem é paginada (`?page=`, padrão 1; `?pageSize=`, padrão 20, máximo 100):
+
+```json
+{
+  "data": [],
+  "meta": { "total": 57, "page": 1, "pageSize": 20, "totalPages": 3 }
+}
+```
