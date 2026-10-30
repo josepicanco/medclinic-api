@@ -1,39 +1,10 @@
-@baseUrl = http://localhost:3333
+@baseUrl = http://localhost:3333/api/v1
 @adminToken = COLE_AQUI_O_TOKEN_DO_ADMIN
-@atendenteToken = COLE_AQUI_O_TOKEN_DO_ATENDENTE
+@secretaryToken = COLE_AQUI_O_TOKEN_DA_SECRETARIA
+@doctorToken = COLE_AQUI_O_TOKEN_DO_MEDICO
 
 ### Health check
 GET {{baseUrl}}/health
-
-### Cadastro
-POST {{baseUrl}}/auth/register
-Content-Type: application/json
-
-{
-  "name": "Maria Atendente",
-  "email": "maria@medclinic.com",
-  "password": "Senha@123"
-}
-
-### Cadastro com e-mail repetido
-POST {{baseUrl}}/auth/register
-Content-Type: application/json
-
-{
-  "name": "Maria Atendente",
-  "email": "maria@medclinic.com",
-  "password": "Senha@123"
-}
-
-### Cadastro com dados invalidos
-POST {{baseUrl}}/auth/register
-Content-Type: application/json
-
-{
-  "name": "Jo",
-  "email": "email-invalido",
-  "password": "123"
-}
 
 ### Login admin
 POST {{baseUrl}}/auth/login
@@ -41,16 +12,7 @@ Content-Type: application/json
 
 {
   "email": "admin@medclinic.com",
-  "password": "Admin@123"
-}
-
-### Login atendente
-POST {{baseUrl}}/auth/login
-Content-Type: application/json
-
-{
-  "email": "maria@medclinic.com",
-  "password": "Senha@123"
+  "password": "SenhaForte@123"
 }
 
 ### Login com senha errada
@@ -58,28 +20,141 @@ POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
-  "email": "maria@medclinic.com",
+  "email": "admin@medclinic.com",
   "password": "senha-errada"
 }
 
 ### Meu perfil
 GET {{baseUrl}}/users/me
-Authorization: Bearer {{atendenteToken}}
-
-### Meu perfil sem token
-GET {{baseUrl}}/users/me
-
-### Token invalido
-GET {{baseUrl}}/users/me
-Authorization: Bearer token.invalido.aqui
-
-### Admin ping com ADMIN
-GET {{baseUrl}}/admin/ping
 Authorization: Bearer {{adminToken}}
 
-### Admin ping com ATENDENTE
-GET {{baseUrl}}/admin/ping
-Authorization: Bearer {{atendenteToken}}
+### Criar secretaria (so admin)
+POST {{baseUrl}}/users
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "Joana Secretária",
+  "email": "joana@medclinic.com",
+  "password": "SenhaForte@123",
+  "roles": ["secretary"]
+}
+
+### Login secretaria
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "joana@medclinic.com",
+  "password": "SenhaForte@123"
+}
+
+### Cadastrar paciente
+POST {{baseUrl}}/patients
+Authorization: Bearer {{secretaryToken}}
+Content-Type: application/json
+
+{
+  "name": "Carlos Pereira",
+  "cpf": "12345678901"
+}
+
+### Listar pacientes com busca por nome
+GET {{baseUrl}}/patients?name=carlos&page=1&pageSize=20
+Authorization: Bearer {{secretaryToken}}
+
+### Alterar paciente
+PATCH {{baseUrl}}/patients/1
+Authorization: Bearer {{secretaryToken}}
+Content-Type: application/json
+
+{
+  "name": "Carlos P. Pereira"
+}
+
+### Cadastrar medico (usuario + CRM na mesma transacao)
+POST {{baseUrl}}/doctors
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "Dra. Helena Souza",
+  "email": "helena@medclinic.com",
+  "password": "SenhaForte@123",
+  "crm": "CRM-SC-54321"
+}
+
+### Login medico
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "helena@medclinic.com",
+  "password": "SenhaForte@123"
+}
+
+### Registrar escala do medico
+PUT {{baseUrl}}/doctors/1/work-schedule
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "shifts": [
+    { "weekDay": 2, "startTime": "08:00", "endTime": "12:00", "slotDurationMinutes": 30 },
+    { "weekDay": 2, "startTime": "14:00", "endTime": "18:00", "slotDurationMinutes": 30 },
+    { "weekDay": 4, "startTime": "08:00", "endTime": "12:00", "slotDurationMinutes": 20 }
+  ]
+}
+
+### Agenda do medico na semana
+GET {{baseUrl}}/doctors/1/calendar?from=2026-10-12&to=2026-10-16
+Authorization: Bearer {{secretaryToken}}
+
+### Agendar consulta
+POST {{baseUrl}}/appointments
+Authorization: Bearer {{secretaryToken}}
+Content-Type: application/json
+
+{
+  "doctorId": 1,
+  "patientId": 1,
+  "startsAt": "2026-10-13T08:00:00-03:00"
+}
+
+### Listar consultas com filtros
+GET {{baseUrl}}/appointments?doctorId=1&status=scheduled&from=2026-10-12&to=2026-10-16
+Authorization: Bearer {{secretaryToken}}
+
+### Iniciar atendimento (medico da consulta)
+PATCH {{baseUrl}}/appointments/1/status
+Authorization: Bearer {{doctorToken}}
+Content-Type: application/json
+
+{
+  "status": "in_progress"
+}
+
+### Escrever no prontuario (medico com vinculo)
+POST {{baseUrl}}/patients/1/medical-records
+Authorization: Bearer {{doctorToken}}
+Content-Type: application/json
+
+{
+  "text": "Paciente relata dor lombar há duas semanas."
+}
+
+### Ler prontuario
+GET {{baseUrl}}/patients/1/medical-records
+Authorization: Bearer {{doctorToken}}
+
+### Concluir atendimento
+PATCH {{baseUrl}}/appointments/1/status
+Authorization: Bearer {{doctorToken}}
+Content-Type: application/json
+
+{
+  "status": "done"
+}
 
 ### Rota que nao existe
 GET {{baseUrl}}/rota-que-nao-existe
