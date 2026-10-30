@@ -80,7 +80,7 @@ function loadDatabaseConfig(): DatabaseConfig {
     url: hasUrl ? url : undefined,
     host: optionalEnv('DB_HOST', 'localhost'),
     port: numberEnv('DB_PORT', 5432),
-    username: hasUrl ? optionalEnv('DB_USERNAME', '') : requiredEnv('DB_USERNAME'),
+    username: hasUrl ? optionalEnv('DB_USER', '') : requiredEnv('DB_USER'),
     password: hasUrl ? optionalEnv('DB_PASSWORD', '') : requiredEnv('DB_PASSWORD'),
     database: hasUrl ? optionalEnv('DB_DATABASE', '') : requiredEnv('DB_DATABASE'),
     logging: booleanEnv('DB_LOGGING', false),
