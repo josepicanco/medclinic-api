@@ -5,7 +5,7 @@ import {
   PatientFilter,
   UpdatePatientData,
 } from '../../src/repositories/patient.repository';
-import { Page } from '../../src/types/pagination.types';
+import { Page } from '../../src/types/pagination.type';
 import { paginate } from './paginate';
 
 export class InMemoryPatientRepository implements IPatientRepository {

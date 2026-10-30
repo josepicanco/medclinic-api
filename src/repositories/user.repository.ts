@@ -2,7 +2,7 @@ import { DataSource, Repository } from 'typeorm';
 
 import { User } from '../entities/user.entity';
 import { UserRole } from '../enums/user-role.enum';
-import { ConflictError } from '../errors/app-error';
+import { ConflictError } from '../errors/app.error';
 import { uniqueViolationConstraint } from '../utils/database.util';
 
 export interface CreateUserData {

@@ -2,18 +2,18 @@
   "name": "medclinic-api",
   "version": "1.0.0",
   "description": "MedClinic API - Etapa 2: Agendamento, escala e prontuario (Node.js + TypeScript + Express + TypeORM + PostgreSQL)",
-  "main": "dist/server.js",
+  "main": "dist/server.bootstrap.js",
   "engines": {
     "node": ">=22.0.0"
   },
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only --exit-child src/server.ts",
+    "dev": "ts-node-dev --respawn --transpile-only --exit-child src/server.bootstrap.ts",
     "build": "rimraf dist && tsc",
-    "start": "node dist/server.js",
+    "start": "node dist/server.bootstrap.js",
     "typecheck": "tsc --noEmit -p tsconfig.spec.json",
     "test": "vitest run",
     "test:cov": "vitest run --coverage",
-    "typeorm": "typeorm-ts-node-commonjs --dataSource=src/database/data-source.ts",
+    "typeorm": "typeorm-ts-node-commonjs --dataSource=src/database/data-source.config.ts",
     "migration:generate": "npm run typeorm -- migration:generate src/database/migrations/Migration",
     "migration:run": "npm run typeorm -- migration:run",
     "migration:revert": "npm run typeorm -- migration:revert",

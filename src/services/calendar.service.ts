@@ -1,7 +1,7 @@
 import { toAppointmentResponseDTO } from '../dtos/appointment.dto';
 import { CalendarQueryDTO, CalendarResponseDTO } from '../dtos/calendar.dto';
 import { toWorkScheduleResponseDTO } from '../dtos/work-schedule.dto';
-import { BadRequestError, NotFoundError } from '../errors/app-error';
+import { BadRequestError, NotFoundError } from '../errors/app.error';
 import { IAppointmentRepository } from '../repositories/appointment.repository';
 import { IDoctorRepository } from '../repositories/doctor.repository';
 import { IWorkScheduleRepository } from '../repositories/work-schedule.repository';

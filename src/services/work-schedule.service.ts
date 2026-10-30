@@ -4,7 +4,7 @@ import {
   toShiftTime,
   toWorkScheduleResponseDTO,
 } from '../dtos/work-schedule.dto';
-import { BadRequestError, NotFoundError } from '../errors/app-error';
+import { BadRequestError, NotFoundError } from '../errors/app.error';
 import { IDoctorRepository } from '../repositories/doctor.repository';
 import { IWorkScheduleRepository } from '../repositories/work-schedule.repository';
 import { hasOverlappingShifts, isShiftWellFormed } from '../rules/schedule.rules';

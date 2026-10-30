@@ -1,5 +1,5 @@
 import { User } from '../../src/entities/user.entity';
-import { ConflictError } from '../../src/errors/app-error';
+import { ConflictError } from '../../src/errors/app.error';
 import { CreateUserData, IUserRepository } from '../../src/repositories/user.repository';
 
 export class InMemoryUserRepository implements IUserRepository {

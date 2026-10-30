@@ -1,9 +1,9 @@
 import express, { Application } from 'express';
 
-import { AppContainer } from './container';
+import { AppContainer } from './container.bootstrap';
 import { errorHandler } from './middlewares/error-handler.middleware';
 import { notFoundHandler } from './middlewares/not-found.middleware';
-import { createRoutes } from './routes';
+import { createRoutes } from './routes/index.routes';
 
 export const API_PREFIX = '/api/v1';
 

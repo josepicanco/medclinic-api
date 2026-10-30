@@ -1,6 +1,6 @@
 import { Request, Response, Router } from 'express';
 
-import { AppContainer } from '../container';
+import { AppContainer } from '../container.bootstrap';
 import { createAppointmentRoutes } from './appointment.routes';
 import { createAuthRoutes } from './auth.routes';
 import { createCalendarRoutes } from './calendar.routes';

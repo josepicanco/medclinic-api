@@ -1,7 +1,7 @@
 import { NextFunction, Request, RequestHandler, Response } from 'express';
 import { ZodTypeAny, z } from 'zod';
 
-import { BadRequestError } from '../errors/app-error';
+import { BadRequestError } from '../errors/app.error';
 
 type RequestPart = 'params' | 'query' | 'body';
 type RequestSchemas = Partial<Record<RequestPart, ZodTypeAny>>;

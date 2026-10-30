@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 
-import { AppError, ErrorCode } from '../errors/app-error';
+import { AppError, ErrorCode } from '../errors/app.error';
 
 // traducao codigo de dominio -> status http, so existe aqui (RP03)
 const STATUS_BY_CODE: Record<ErrorCode, number> = {

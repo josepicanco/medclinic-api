@@ -1,6 +1,6 @@
 import { MedicalRecord } from '../../src/entities/medical-record.entity';
 import { CreateMedicalRecordData, IMedicalRecordRepository } from '../../src/repositories/medical-record.repository';
-import { Page, PageRequest } from '../../src/types/pagination.types';
+import { Page, PageRequest } from '../../src/types/pagination.type';
 import { paginate } from './paginate';
 
 export class InMemoryMedicalRecordRepository implements IMedicalRecordRepository {

@@ -1,7 +1,7 @@
 import { RequestHandler } from 'express';
 import { DataSource } from 'typeorm';
 
-import { AppEnv } from './config/env';
+import { AppEnv } from './config/env.config';
 import { AppointmentController } from './controllers/appointment.controller';
 import { AuthController } from './controllers/auth.controller';
 import { CalendarController } from './controllers/calendar.controller';

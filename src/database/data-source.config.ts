@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 
-import { DatabaseConfig, env } from '../config/env';
+import { DatabaseConfig, env } from '../config/env.config';
 import { Appointment } from '../entities/appointment.entity';
 import { Doctor } from '../entities/doctor.entity';
 import { MedicalRecord } from '../entities/medical-record.entity';

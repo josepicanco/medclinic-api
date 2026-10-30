@@ -1,7 +1,7 @@
 import { NextFunction, Request, RequestHandler, Response } from 'express';
 
 import { UserRole } from '../enums/user-role.enum';
-import { ForbiddenError, UnauthorizedError } from '../errors/app-error';
+import { ForbiddenError, UnauthorizedError } from '../errors/app.error';
 
 // RN01: basta o usuario ter um dos perfis permitidos
 export function authorize(...allowedRoles: UserRole[]): RequestHandler {

@@ -1,7 +1,7 @@
 import { NextFunction, Request, RequestHandler, Response } from 'express';
 
-import { UnauthorizedError } from '../errors/app-error';
-import { AuthenticatedUser } from '../types/authenticated-user';
+import { UnauthorizedError } from '../errors/app.error';
+import { AuthenticatedUser } from '../types/authenticated-user.type';
 import { ITokenProvider } from '../utils/jwt.util';
 
 const BEARER_PREFIX = 'Bearer ';

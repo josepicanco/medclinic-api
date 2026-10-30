@@ -1,7 +1,7 @@
 import { DataSource, Repository } from 'typeorm';
 
 import { MedicalRecord } from '../entities/medical-record.entity';
-import { Page, PageRequest } from '../types/pagination.types';
+import { Page, PageRequest } from '../types/pagination.type';
 
 export interface CreateMedicalRecordData {
   readonly patientId: number;

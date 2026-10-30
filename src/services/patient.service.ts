@@ -6,7 +6,7 @@ import {
   UpdatePatientDTO,
   toPatientResponseDTO,
 } from '../dtos/patient.dto';
-import { ConflictError, NotFoundError } from '../errors/app-error';
+import { ConflictError, NotFoundError } from '../errors/app.error';
 import { IPatientRepository } from '../repositories/patient.repository';
 
 export class PatientService {

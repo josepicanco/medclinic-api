@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { UserRole } from '../../../src/enums/user-role.enum';
-import { AppError } from '../../../src/errors/app-error';
+import { AppError } from '../../../src/errors/app.error';
 import { AuthService } from '../../../src/services/auth.service';
 import { FakePasswordHasher } from '../../fakes/fake-password-hasher';
 import { FakeTokenProvider } from '../../fakes/fake-token-provider';
