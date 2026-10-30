@@ -3,8 +3,8 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { UserRole } from '../../../src/enums/user-role.enum';
 import { AppError } from '../../../src/errors/app.error';
 import { AuthService } from '../../../src/services/auth.service';
-import { FakePasswordHasher } from '../../fakes/fake-password-hasher';
-import { FakeTokenProvider } from '../../fakes/fake-token-provider';
+import { FakePasswordHasher } from '../../fakes/password-hasher.fake';
+import { FakeTokenProvider } from '../../fakes/token-provider.fake';
 import { InMemoryUserRepository } from '../../fakes/in-memory-user.repository';
 
 describe('AuthService (RF01)', () => {

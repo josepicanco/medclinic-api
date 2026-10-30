@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { DoctorService } from '../../../src/services/doctor.service';
-import { Fakes, buildFakes } from '../../fakes/build-fakes';
+import { Fakes, buildFakes } from '../../fakes/build.fake';
 
 describe('DoctorService (RF03)', () => {
   let fakes: Fakes;

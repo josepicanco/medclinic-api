@@ -6,7 +6,7 @@ import {
   UpdatePatientData,
 } from '../../src/repositories/patient.repository';
 import { Page } from '../../src/types/pagination.type';
-import { paginate } from './paginate';
+import { paginate } from './paginate.fake';
 
 export class InMemoryPatientRepository implements IPatientRepository {
   public readonly items: Patient[] = [];

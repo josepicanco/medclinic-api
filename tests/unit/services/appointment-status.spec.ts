@@ -4,7 +4,7 @@ import { AppointmentStatus } from '../../../src/enums/appointment-status.enum';
 import { UserRole } from '../../../src/enums/user-role.enum';
 import { AppointmentService } from '../../../src/services/appointment.service';
 import { AuthenticatedUser } from '../../../src/types/authenticated-user.type';
-import { Fakes, buildFakes } from '../../fakes/build-fakes';
+import { Fakes, buildFakes } from '../../fakes/build.fake';
 
 const { SCHEDULED, IN_PROGRESS, DONE, CANCELLED } = AppointmentStatus;
 

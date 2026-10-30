@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 
 import { AppointmentStatus } from '../../../src/enums/appointment-status.enum';
 import { CalendarService } from '../../../src/services/calendar.service';
-import { Fakes, buildFakes } from '../../fakes/build-fakes';
+import { Fakes, buildFakes } from '../../fakes/build.fake';
 
 describe('CalendarService (RF05)', () => {
   let fakes: Fakes;

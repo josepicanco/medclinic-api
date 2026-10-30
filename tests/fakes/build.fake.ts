@@ -1,4 +1,4 @@
-import { FakePasswordHasher } from './fake-password-hasher';
+import { FakePasswordHasher } from './password-hasher.fake';
 import { InMemoryAppointmentRepository } from './in-memory-appointment.repository';
 import { InMemoryDoctorRepository } from './in-memory-doctor.repository';
 import { InMemoryMedicalRecordRepository } from './in-memory-medical-record.repository';

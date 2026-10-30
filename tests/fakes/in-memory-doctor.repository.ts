@@ -3,7 +3,7 @@ import { UserRole } from '../../src/enums/user-role.enum';
 import { CreateDoctorData, DoctorFilter, IDoctorRepository } from '../../src/repositories/doctor.repository';
 import { Page } from '../../src/types/pagination.type';
 import { InMemoryUserRepository } from './in-memory-user.repository';
-import { paginate } from './paginate';
+import { paginate } from './paginate.fake';
 
 export class InMemoryDoctorRepository implements IDoctorRepository {
   public readonly items: Doctor[] = [];
