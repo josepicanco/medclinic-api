@@ -1,5 +1,5 @@
 # etapa de build: instala tudo e compila o typescript
-FROM node:22-alpine AS build
+FROM node:26-alpine AS build
 WORKDIR /app
 
 COPY package.json package-lock.json ./
@@ -10,7 +10,7 @@ COPY src ./src
 RUN npm run build
 
 # etapa de execucao: so dependencias de producao e o dist
-FROM node:22-alpine AS runtime
+FROM node:26-alpine AS runtime
 ENV NODE_ENV=production
 WORKDIR /app
 
