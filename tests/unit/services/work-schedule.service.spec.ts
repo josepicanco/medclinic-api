@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 
 import { ShiftDTO } from '../../../src/dtos/work-schedule.dto';
 import { WorkScheduleService } from '../../../src/services/work-schedule.service';
-import { Fakes, buildFakes } from '../../fakes/build-fakes';
+import { Fakes, buildFakes } from '../../fakes/build.fake';
 
 const shift = (weekDay: number, startTime: string, endTime: string, slotDurationMinutes: number): ShiftDTO => ({
   weekDay,

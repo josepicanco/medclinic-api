@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 import { isValidDate } from '../rules/clinic-time.rules';
-import { Page } from '../types/pagination.types';
+import { Page } from '../types/pagination.type';
 
 const MAX_INT = 2_147_483_647;
 const MAX_PAGE_SIZE = 100;

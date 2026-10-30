@@ -1,6 +1,6 @@
 import { PageResponseDTO, toPageResponseDTO } from '../dtos/common.dto';
 import { CreateDoctorDTO, DoctorResponseDTO, ListDoctorsQueryDTO, toDoctorResponseDTO } from '../dtos/doctor.dto';
-import { ConflictError, NotFoundError } from '../errors/app-error';
+import { ConflictError, NotFoundError } from '../errors/app.error';
 import { IDoctorRepository } from '../repositories/doctor.repository';
 import { IUserRepository } from '../repositories/user.repository';
 import { IPasswordHasher } from '../utils/password.util';

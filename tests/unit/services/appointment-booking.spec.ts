@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 
 import { AppointmentStatus } from '../../../src/enums/appointment-status.enum';
 import { AppointmentService } from '../../../src/services/appointment.service';
-import { Fakes, buildFakes } from '../../fakes/build-fakes';
+import { Fakes, buildFakes } from '../../fakes/build.fake';
 
 // terca, 13/10/2026, no horario local da clinica
 const tuesday = (time: string): Date => new Date(`2026-10-13T${time}:00-03:00`);

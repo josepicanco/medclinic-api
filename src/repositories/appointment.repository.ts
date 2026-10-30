@@ -6,7 +6,7 @@ import { Patient } from '../entities/patient.entity';
 import { WorkShift } from '../entities/work-shift.entity';
 import { AppointmentStatus } from '../enums/appointment-status.enum';
 import { Period } from '../rules/period.rules';
-import { Page, PageRequest } from '../types/pagination.types';
+import { Page, PageRequest } from '../types/pagination.type';
 
 export interface CreateAppointmentData {
   readonly doctorId: number;

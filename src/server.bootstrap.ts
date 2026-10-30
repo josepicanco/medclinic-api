@@ -1,9 +1,9 @@
 import 'reflect-metadata';
 
-import { createApp } from './app';
-import { env } from './config/env';
-import { buildContainer } from './container';
-import { AppDataSource, initializeDatabase } from './database/data-source';
+import { createApp } from './app.bootstrap';
+import { env } from './config/env.config';
+import { buildContainer } from './container.bootstrap';
+import { AppDataSource, initializeDatabase } from './database/data-source.config';
 
 // RP10: na nuvem o servico precisa escutar em todas as interfaces, nao so em localhost
 const HOST = '0.0.0.0';

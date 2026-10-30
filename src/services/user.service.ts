@@ -1,7 +1,7 @@
 import { CreateUserDTO } from '../dtos/create-user.dto';
 import { UserResponseDTO, toUserResponseDTO } from '../dtos/user-response.dto';
 import { UserRole } from '../enums/user-role.enum';
-import { BadRequestError, ConflictError, NotFoundError } from '../errors/app-error';
+import { BadRequestError, ConflictError, NotFoundError } from '../errors/app.error';
 import { IUserRepository } from '../repositories/user.repository';
 import { IPasswordHasher } from '../utils/password.util';
 

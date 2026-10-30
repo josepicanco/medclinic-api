@@ -8,15 +8,15 @@ import { PageResponseDTO, toPageResponseDTO } from '../dtos/common.dto';
 import { Appointment } from '../entities/appointment.entity';
 import { AppointmentStatus } from '../enums/appointment-status.enum';
 import { UserRole, hasRole } from '../enums/user-role.enum';
-import { BadRequestError, ConflictError, ForbiddenError, NotFoundError, UnprocessableError } from '../errors/app-error';
+import { BadRequestError, ConflictError, ForbiddenError, NotFoundError, UnprocessableError } from '../errors/app.error';
 import { AppointmentFilter, IAppointmentRepository } from '../repositories/appointment.repository';
 import { IDoctorRepository } from '../repositories/doctor.repository';
 import { canPerformTransition, transitionAuthorities } from '../rules/appointment-status.rules';
 import { endOfClinicDayExclusive, startOfClinicDay } from '../rules/clinic-time.rules';
 import { addMinutes } from '../rules/period.rules';
 import { findShiftForSlot } from '../rules/schedule.rules';
-import { AuthenticatedUser } from '../types/authenticated-user';
-import { emptyPage } from '../types/pagination.types';
+import { AuthenticatedUser } from '../types/authenticated-user.type';
+import { emptyPage } from '../types/pagination.type';
 
 export class AppointmentService {
   private readonly appointmentRepository: IAppointmentRepository;

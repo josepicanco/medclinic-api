@@ -21,4 +21,4 @@ COPY --from=build /app/dist ./dist
 
 USER node
 EXPOSE 3333
-CMD ["node", "dist/server.js"]
+CMD ["node", "dist/server.bootstrap.js"]

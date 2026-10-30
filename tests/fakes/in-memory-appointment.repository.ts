@@ -7,11 +7,11 @@ import {
   IBookingTransaction,
 } from '../../src/repositories/appointment.repository';
 import { Period, periodsOverlap } from '../../src/rules/period.rules';
-import { Page } from '../../src/types/pagination.types';
+import { Page } from '../../src/types/pagination.type';
 import { InMemoryDoctorRepository } from './in-memory-doctor.repository';
 import { InMemoryPatientRepository } from './in-memory-patient.repository';
 import { InMemoryWorkScheduleRepository } from './in-memory-work-schedule.repository';
-import { paginate } from './paginate';
+import { paginate } from './paginate.fake';
 
 export class InMemoryAppointmentRepository implements IAppointmentRepository {
   public readonly items: Appointment[] = [];

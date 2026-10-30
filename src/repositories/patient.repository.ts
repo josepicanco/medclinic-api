@@ -1,8 +1,8 @@
 import { DataSource, Repository } from 'typeorm';
 
 import { Patient } from '../entities/patient.entity';
-import { ConflictError } from '../errors/app-error';
-import { Page, PageRequest } from '../types/pagination.types';
+import { ConflictError } from '../errors/app.error';
+import { Page, PageRequest } from '../types/pagination.type';
 import { likePattern, uniqueViolationConstraint } from '../utils/database.util';
 
 export interface CreatePatientData {

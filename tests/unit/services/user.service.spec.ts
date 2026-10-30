@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { UserRole } from '../../../src/enums/user-role.enum';
 import { AdminSeedService } from '../../../src/services/admin-seed.service';
 import { UserService } from '../../../src/services/user.service';
-import { FakePasswordHasher } from '../../fakes/fake-password-hasher';
+import { FakePasswordHasher } from '../../fakes/password-hasher.fake';
 import { InMemoryUserRepository } from '../../fakes/in-memory-user.repository';
 
 describe('UserService', () => {

@@ -1,6 +1,6 @@
 import { LoginDTO } from '../dtos/login.dto';
 import { AuthResponseDTO } from '../dtos/user-response.dto';
-import { InvalidCredentialsError } from '../errors/app-error';
+import { InvalidCredentialsError } from '../errors/app.error';
 import { IUserRepository } from '../repositories/user.repository';
 import { ITokenProvider } from '../utils/jwt.util';
 import { IPasswordHasher } from '../utils/password.util';

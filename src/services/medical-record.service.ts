@@ -5,13 +5,13 @@ import {
   toMedicalRecordResponseDTO,
 } from '../dtos/medical-record.dto';
 import { UserRole, hasRole } from '../enums/user-role.enum';
-import { ForbiddenError, NotFoundError } from '../errors/app-error';
+import { ForbiddenError, NotFoundError } from '../errors/app.error';
 import { IAppointmentRepository } from '../repositories/appointment.repository';
 import { IDoctorRepository } from '../repositories/doctor.repository';
 import { IMedicalRecordRepository } from '../repositories/medical-record.repository';
 import { IPatientRepository } from '../repositories/patient.repository';
 import { BOND_STATUSES } from '../rules/appointment-status.rules';
-import { AuthenticatedUser } from '../types/authenticated-user';
+import { AuthenticatedUser } from '../types/authenticated-user.type';
 
 // RN14: o acesso depende do vinculo com o atendimento, nao so do cargo
 export class MedicalRecordService {

@@ -1,7 +1,7 @@
 import { MedicalRecord } from '../../src/entities/medical-record.entity';
 import { CreateMedicalRecordData, IMedicalRecordRepository } from '../../src/repositories/medical-record.repository';
-import { Page, PageRequest } from '../../src/types/pagination.types';
-import { paginate } from './paginate';
+import { Page, PageRequest } from '../../src/types/pagination.type';
+import { paginate } from './paginate.fake';
 
 export class InMemoryMedicalRecordRepository implements IMedicalRecordRepository {
   public readonly items: MedicalRecord[] = [];

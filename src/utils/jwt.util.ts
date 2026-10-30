@@ -1,8 +1,8 @@
 import jwt, { JwtPayload, SignOptions } from 'jsonwebtoken';
 
 import { isUserRole } from '../enums/user-role.enum';
-import { UnauthorizedError } from '../errors/app-error';
-import { AuthenticatedUser } from '../types/authenticated-user';
+import { UnauthorizedError } from '../errors/app.error';
+import { AuthenticatedUser } from '../types/authenticated-user.type';
 
 export interface ITokenProvider {
   sign(user: AuthenticatedUser): string;
